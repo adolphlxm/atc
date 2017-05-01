@@ -59,19 +59,47 @@ func main(){
 路由加载 `router.go`
 
 ```go
+
+// 登录过滤器
+// 可以通过自定义过滤器来实现登录状态、权限检查等功能
+func AfterLogin(ctx *context.Context){
+	// 错误输出
+	error := atc.NewError(ctx)
+	error.Code(401,10000).JSON()
+}
+
 func init(){
-        // 分组版本
+        // 分组版本控制
+        
         v1 := atc.Route.Group("V1")
         {
-                // 该分组的版本
+                // V1版本路由
                 v1.AddRouter("users",&LoginHandler{})
+                ...
+        }
+        V2 := atc.Route.Group("V2")
+        {
+                // V2版本过滤器, 根据路由规则加载。
+                // 支持三种过滤器：
+                //      1. EFORE_ROUTE                    //匹配路由之前
+                //      2. BEFORE_HANDLER                 //匹配到路由后,执行Handler之前
+                //      3. AFTER                          //执行完所有逻辑后
+                v2.AddFilter(atc.BEFORE_ROUTE,"users.*",AfterLogin)
+                // V2版本路由
+                v2.AddRouter("users",&LoginHandler{})
+                ...
         }
 }
 ```
     
-然后在浏览器访问 `http://localhost/users/login`, 将会得到一个json返回
+然后在浏览器访问 
 
-##RPC 经典案例
+`http://localhost/V1/users/login`, 将会得到一个json返回
+
+`http://localhost/V2/users/login`, 将会得到一个json返回
+
+
+## RPC 经典案例
 
 ### Thrift RPC
 关于Thrift RPC 具体可以 度娘、谷爹查看
