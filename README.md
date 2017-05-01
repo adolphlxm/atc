@@ -6,10 +6,15 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 More info [atc.wiki](http://atc.wiki)
 
+[老版本GITHUB](https://github.com/lxmgo)
+
 ## 安装ATC
 
     go get github.com/adolphlxm/atc
+    go get github.com/lxmgo/config
     
+   用到了配置加载包 `github.com/lxmgo/config`, 该GITHUB内容将逐步迁移过来(为了方便管理新开了Adolphlxm)
+   
 ## RESTful API 经典案例
 一个经典的ATC例子 `main.go`
 ```go
@@ -67,6 +72,7 @@ func init(){
 然后在浏览器访问 `http://localhost/users/login`, 将会得到一个json返回
 
 ##RPC 经典案例
+
 ### Thrift RPC
 关于Thrift RPC 具体可以 度娘、谷爹查看
 
@@ -111,9 +117,10 @@ func init() {
 * 消息通信
 * 服务注册与发现模块
 
+文档陆续更新中...
+DEMO更新中...
+
 # LICENSE
 
 ATC is Licensed under the Apache License, Version 2.0 (the "License")
 (http://www.apache.org/licenses/LICENSE-2.0.html).
-
-文档陆续更新中...
