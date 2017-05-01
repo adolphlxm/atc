@@ -2,7 +2,7 @@
 
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 Thrift RPC的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
-当前版本: 0.1.0 (Beta 2017-04-28)
+当前版本: 0.1.0 (BATE 2017-04-28)
 
 More info [atc.wiki](http://atc.wiki)
 
