@@ -135,6 +135,26 @@ func init() {
 
 ### gRPC...
 
+## ATC项目结构
+<pre>
+├── conf
+│   ├── app.ini
+│   └── error.ini
+├── front
+│   └── HTML...
+├── bin
+├── src
+│   ├── httprouter
+│         ├── V1
+│         └── router.go
+│   └── thriftrpc
+│         ├── idl
+│         ├── gen
+│         ├── ...(.go)
+│         └── router.go
+└── atc.go
+</pre>
+
 ## 特性
 
 * 支持RESTful HTTP通信 及 平滑退出
@@ -144,6 +164,7 @@ func init() {
     
 ## 即将支持特性(待定稿)
 
+* 自动生成项目
 * gRPC通信
 * 消息通信
 * 服务注册与发现模块
