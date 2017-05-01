@@ -94,9 +94,12 @@ func init(){
     
 然后在浏览器访问 
 
-`http://localhost/V1/users/login`, 将会得到一个json返回
+1. `http://localhost/V1/users/login`
+    * 将会得到一个json返回
 
-`http://localhost/V2/users/login`, 将会得到一个json返回
+2. `http://localhost/V2/users/login`
+    * 先执行`BFORE_ROUTE`过滤器, 未通过则得到一个json返回。
+    * 通过过滤器后 加载 `Get()`, 将会得到一个json返回。
 
 
 ## RPC 经典案例
