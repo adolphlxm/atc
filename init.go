@@ -50,7 +50,7 @@ func init() {
 
 	// Initialize log
 	Logger = logs.NewLogger(10000)
-	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`"}`)
+	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
 	Logger.SetLevel(Aconfig.LogLevel)
 
 	// Initialize app serve

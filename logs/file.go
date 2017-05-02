@@ -52,7 +52,7 @@ func (f *File) Output(msg string) error {
 	var err error
 
 	msg += "\n"
-	f.logFile, err = os.OpenFile(f.Filename, os.O_RDWR|os.O_APPEND|os.O_CREATE, f.fPerm)
+	f.logFile, err = os.OpenFile(f.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, f.fPerm)
 	defer f.logFile.Close()
 	if err == nil {
 		os.Chmod(f.Filename, f.fPerm)
