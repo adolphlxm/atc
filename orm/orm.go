@@ -2,6 +2,7 @@ package orm
 
 import (
 	"fmt"
+
 	"github.com/go-xorm/xorm"
 )
 
@@ -41,12 +42,11 @@ func Register(name string, adapter OrmFunc) {
 	adapters[name] = adapter
 }
 
-
-func NewOrm(adapterName string) (Orm,error) {
+func NewOrm(adapterName string) (Orm, error) {
 
 	if handler, ok := adapters[adapterName]; ok {
-		return handler(),nil
+		return handler(), nil
 	} else {
-		return nil,fmt.Errorf("ATC orm: unknown adapter name %s failed.", adapterName)
+		return nil, fmt.Errorf("ATC orm: unknown adapter name %s failed.", adapterName)
 	}
 }

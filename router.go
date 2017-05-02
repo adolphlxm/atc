@@ -18,15 +18,15 @@ package atc
 
 import (
 	"bytes"
+	"code.google.com/p/go.net/websocket"
+	"github.com/adolphlxm/atc/context"
+	"net/http"
+	"path"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
-	"path"
-	"code.google.com/p/go.net/websocket"
-	"net/http"
-	"reflect"
 	"time"
-	"github.com/adolphlxm/atc/context"
 	//"github.com/lxmgo/atc/rpc/gen/atcrpc"
 )
 
@@ -72,13 +72,13 @@ func (h *HandlerRouter) AddRouter(pattern string, c HandlerInterface) *Router {
 	reflectVal := reflect.ValueOf(c)
 	t := reflect.Indirect(reflectVal).Type()
 	// According to handler package routing.
-	handlerName := strings.Split(t.Name(),"Handler")
+	handlerName := strings.Split(t.Name(), "Handler")
 	if len(handlerName) != 2 {
 		panic("ATC AddRouter: new router failed for " + t.Name() + ": invalid handler definition!")
 	}
 
 	prefixName := strings.ToLower(handlerName[0])
-	pattern = path.Join(pattern,prefixName,"?") + "id:([\\da-z]+)?"
+	pattern = path.Join(pattern, prefixName, "?") + "id:([\\da-z]+)?"
 
 	// Check the routing legal
 	for _, r := range h.routers {
@@ -131,7 +131,7 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = requestPath
 	}
 
-	ctx := context.NewContext(w,r)
+	ctx := context.NewContext(w, r)
 
 	defer h.recoverPanic(ctx)
 
@@ -157,12 +157,12 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			ws.SetDeadline(time.Now().Add(time.Hour * 24))
 
 			ctx.WS = ws
-			h.findRoute("WS",requestPath,ctx)
+			h.findRoute("WS", requestPath, ctx)
 		}).ServeHTTP(w, r)
 
 	} else {
 		// RESTFUL handler
-		h.findRoute(ctx.Method(),requestPath,ctx)
+		h.findRoute(ctx.Method(), requestPath, ctx)
 		ctx.MultipartFormMaxMemory(Aconfig.PostMaxMemory)
 	}
 
@@ -173,7 +173,7 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.findFilter(AFTER, requestPath, ctx)
 }
 
-func (h *HandlerRouter) ExecuteHandler(method, requestPath string, c *Handler){
+func (h *HandlerRouter) ExecuteHandler(method, requestPath string, c *Handler) {
 	defer h.recoverPanic(c.Ctx)
 
 	h.findFilter(BEFORE_ROUTE, requestPath, c.Ctx)
@@ -181,7 +181,7 @@ func (h *HandlerRouter) ExecuteHandler(method, requestPath string, c *Handler){
 	if c.Ctx.GetStatus() != http.StatusOK {
 		return
 	}
-	h.findRoute(method,requestPath, c.Ctx)
+	h.findRoute(method, requestPath, c.Ctx)
 	// Exit handler
 	if c.Ctx.GetStatus() != http.StatusOK {
 		return
@@ -193,15 +193,15 @@ func (h *HandlerRouter) recoverPanic(c *context.Context) {
 	if err := recover(); err != nil {
 		// Is open panic
 		if !Aconfig.Debug {
-			Logger.Fatal("handler recover: %v",err)
+			Logger.Fatal("%s request recover: %v", c.Path(), err)
 		}
 
-		Logger.Errorf("handler recover: %v",err)
+		Logger.Error("%s request recover: %v", c.Path(), err)
 	}
 }
 
 // finds the matching route given a cleaned path
-func (h *HandlerRouter) findRoute(method, requestPath string,c *context.Context){
+func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context) {
 	error := NewError(c)
 	for _, r := range h.routers {
 		if r.MatchPath(requestPath) {
@@ -287,7 +287,7 @@ type Router struct {
 func newRouter(pattern string, t reflect.Type) (r *Router, err error) {
 	r = &Router{
 		HandlerType: t,
-		Pattern: pattern,
+		Pattern:     pattern,
 		//methods: []string{httpMethod},
 	}
 
@@ -352,7 +352,7 @@ func (r *Router) regexpRouter() (err error) {
 		exprPattern.WriteString(replacePattern)
 		//Compile parses a regular expression and returns, if successful
 		r.Regexp, err = regexp.Compile(exprPattern.String())
-		patternShort := strings.Split(replacePattern,"?")
+		patternShort := strings.Split(replacePattern, "?")
 		r.Pattern = patternShort[0]
 	}
 	return err

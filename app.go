@@ -12,7 +12,7 @@ type App struct {
 	Handler *HandlerRouter
 	// A Server defines parameters for running an HTTP server.
 	// The zero value for Server is a valid configuration.
-	Server  *http.Server
+	Server *http.Server
 }
 
 // NewApp returns a new atc application.
@@ -43,7 +43,7 @@ func (a *App) Run() {
 		// calls Serve to handle requests on incoming connections.
 		err := a.Server.ListenAndServe()
 		if err != nil {
-			Logger.Errorf("ListenAndServe: %v", err)
+			Logger.Error("ListenAndServe: %v", err)
 			time.Sleep(500 * time.Microsecond)
 		}
 	}()

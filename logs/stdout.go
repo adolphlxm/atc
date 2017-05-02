@@ -7,9 +7,13 @@ import (
 type Stdout struct {
 }
 
-func NewStdoutHandler() IAtcLogger {
+func NewStdoutLog() IAtcLogger {
 	stdout := &Stdout{}
 	return stdout
+}
+
+func (s *Stdout) Init(config string) error {
+	return nil
 }
 
 // Output message in stdout.
@@ -20,5 +24,5 @@ func (s *Stdout) Output(msg string) error {
 
 //Register NewStdout
 func init() {
-	Register("stdout", NewStdoutHandler)
+	Register("stdout", NewStdoutLog)
 }

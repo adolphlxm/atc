@@ -1,27 +1,26 @@
 package thrift
 
 import (
-	"git.apache.org/thrift.git/lib/go/thrift"
-	"net"
-	"testing"
-	"github.com/lxmgo/atc/rpc/thrift/gen/atcrpc"
+	"context"
 	"encoding/json"
 	"fmt"
-	"time"
+	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/lxmgo/atc/rpc/thrift/gen/atcrpc"
 	"github.com/lxmgo/atc/rpc/thrift/gen/micro"
-	"context"
+	"net"
+	"testing"
+	"time"
 )
 
 var (
 	addr = net.JoinHostPort("127.0.0.1", "9191")
 )
 
-
 type AtcrpcHandler struct {
 }
 
-func (this *AtcrpcHandler) CallBack(a *atcrpc.ReqHandler,  body map[string]string) (r string, err error) {
-	jsonApi,err  := json.Marshal(a)
+func (this *AtcrpcHandler) CallBack(a *atcrpc.ReqHandler, body map[string]string) (r string, err error) {
+	jsonApi, err := json.Marshal(a)
 	r = string(jsonApi)
 	time.Sleep(3 * time.Second)
 	fmt.Println("CallBack is running.")
@@ -45,7 +44,7 @@ func TestRemoteThriftRPC(t *testing.T) {
 // Thrift serve.
 func _thriftServer(t *testing.T, protocolT, transportT string) {
 	// Initialize the thrift
-	thriftServe := NewThriftServe(`{"addr":"`+addr+`","secure":"false"}`)
+	thriftServe := NewThriftServe(`{"addr":"` + addr + `","secure":"false"}`)
 	thriftServe.Debug(false)
 	thriftServe.Factory(protocolT, transportT)
 	thriftServe.Timeout(3)
@@ -65,14 +64,12 @@ func _thriftServer(t *testing.T, protocolT, transportT string) {
 	go _localClient(t, protocolT, transportT)
 
 	time.Sleep(1 * time.Millisecond)
-	ctx,_:=context.WithTimeout(context.Background(), 4 * time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 4*time.Second)
 	if err := thriftServe.Shutdown(ctx); err != nil {
-		fmt.Printf("thrift client %s finish.\n",err.Error())
+		fmt.Printf("thrift client %s finish.\n", err.Error())
 	} else {
 		fmt.Println("thrift client finish.")
 	}
-
-
 
 }
 
@@ -114,21 +111,21 @@ func _localClient(t *testing.T, protocolT, transportT string) {
 	defer transport.Close()
 
 	rpc := &atcrpc.ReqHandler{
-		Version:"V2",
-		Method:"GET",
-		Handler:"users.test",
+		Version: "V2",
+		Method:  "GET",
+		Handler: "users.test",
 	}
 	body := map[string]string{
-		"a":"1",
-		"b":"2",
+		"a": "1",
+		"b": "2",
 	}
 
-	r,err := client.CallBack(rpc, body)
+	r, err := client.CallBack(rpc, body)
 	if err != nil {
 		t.Fatalf("[thrift client] Error clinet CallBack err:", err)
 	}
 	rpcResult := &atcrpc.ReqHandler{}
-	err = json.Unmarshal([]byte(r),rpcResult)
+	err = json.Unmarshal([]byte(r), rpcResult)
 	if err != nil {
 		t.Fatalf("[thrift client] Error clinet Unmarshal err:", err)
 	}
@@ -179,12 +176,11 @@ func _remoteClient(t *testing.T, protocolT, transportT string) {
 	}
 	defer transport.Close()
 
-
 	body := map[string]string{
-		"a":"1",
-		"b":"2",
+		"a": "1",
+		"b": "2",
 	}
-	r,err := client.CallBack(1,"adolph",body)
+	r, err := client.CallBack(1, "adolph", body)
 
 	if err != nil {
 		t.Fatalf("[thrift client] Error clinet CallBack err:", err)

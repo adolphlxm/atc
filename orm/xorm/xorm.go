@@ -1,23 +1,24 @@
 package xorm
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
-	"github.com/go-xorm/core"
-	"github.com/adolphlxm/atc/orm"
 	"encoding/json"
 	"fmt"
 	"sync"
+
+	"github.com/adolphlxm/atc/orm"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
 )
 
 type Orm struct {
-	db map[string]*xorm.Engine
+	db       map[string]*xorm.Engine
 	logLevel core.LogLevel
-	mu sync.Mutex
+	mu       sync.Mutex
 }
 
 func NewXorm() orm.Orm {
-	return &Orm{db:make(map[string]*xorm.Engine)}
+	return &Orm{db: make(map[string]*xorm.Engine)}
 }
 
 func (this *Orm) Open(aliasName, config string) error {
@@ -56,7 +57,7 @@ func (this *Orm) Open(aliasName, config string) error {
 	// Default.
 	engine.Logger().SetLevel(core.LOG_OFF)
 
-	this.db[aliasName]= engine
+	this.db[aliasName] = engine
 	return nil
 }
 
@@ -68,7 +69,7 @@ func (this *Orm) SetMaxOpenConns(aliasName string, conns int) {
 	this.db[aliasName].SetMaxOpenConns(conns)
 }
 
-func (this *Orm) Debug(aliasName string, show bool){
+func (this *Orm) Debug(aliasName string, show bool) {
 	this.db[aliasName].ShowSQL(show)
 	if show {
 		this.db[aliasName].Logger().SetLevel(this.logLevel)
@@ -86,17 +87,15 @@ func (this *Orm) Clone(aliasName string) error {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
-	this.db[aliasName],err = this.db[aliasName].Clone()
+	this.db[aliasName], err = this.db[aliasName].Clone()
 	return err
 }
 
-func (this *Orm) Use(aliasName string) *xorm.Engine{
+func (this *Orm) Use(aliasName string) *xorm.Engine {
 	return this.db[aliasName]
 }
-
 
 // Register
 func init() {
 	orm.Register("xorm", NewXorm)
 }
-

@@ -1,36 +1,36 @@
 package atc
 
 import (
-	"github.com/adolphlxm/atc/context"
-	"encoding/json"
-	"sync"
-	"os"
 	"bufio"
-	"io"
 	"bytes"
-	"fmt"
-	"strconv"
 	"code.google.com/p/go.net/websocket"
+	"encoding/json"
+	"fmt"
+	"github.com/adolphlxm/atc/context"
+	"io"
+	"os"
+	"strconv"
+	"sync"
 )
 
 var (
 	ErrorCode *ErrorMap
 
-	defaultMsg = "Undefined error"
+	defaultMsg  = "Undefined error"
 	defaultCode = map[int]string{
-		500 : "Internal error, Loading handler to fail.",
-		404 : "Not found, Not find the handler or action.",
-		406 : "Not Acceptable, JSON Marshal fail.",
-		407 : "Not Acceptable, Websocket JSON reveice fail.",
-		408 : "Not Acceptable, Base64 decryption fail.",
-		409 : "Not Acceptable, Body argument is invalid.",
-		410 : "Not Acceptable, Invalid websocket json request method.",
-		411 : "Not Acceptable, Invalid websocket json request module.",
-		400 : "Unauthorized, Token expires or invalid.",
+		500: "Internal error, Loading handler to fail.",
+		404: "Not found, Not find the handler or action.",
+		406: "Not Acceptable, JSON Marshal fail.",
+		407: "Not Acceptable, Websocket JSON reveice fail.",
+		408: "Not Acceptable, Base64 decryption fail.",
+		409: "Not Acceptable, Body argument is invalid.",
+		410: "Not Acceptable, Invalid websocket json request method.",
+		411: "Not Acceptable, Invalid websocket json request module.",
+		400: "Unauthorized, Token expires or invalid.",
 	}
 )
 
-func init(){
+func init() {
 	// Initializes the error maps
 	ErrorCode = NewErrorMap()
 
@@ -47,15 +47,15 @@ func init(){
 // Add the map element, there are the mutex (lock)
 type ErrorMap struct {
 	lock *sync.Mutex
-	msg map[int]string
+	msg  map[int]string
 }
 
 // NewErrorMap returns a new ErrorMap
 // It initialize the default error code (parseDefault())
 func NewErrorMap() *ErrorMap {
 	errorMap := &ErrorMap{
-		lock:new(sync.Mutex),
-		msg:make(map[int]string),
+		lock: new(sync.Mutex),
+		msg:  make(map[int]string),
 	}
 
 	errorMap.parseDefault()
@@ -96,9 +96,9 @@ func (m *ErrorMap) Delete(code int) {
 	delete(m.msg, code)
 }
 
-func (m *ErrorMap) parseDefault(){
+func (m *ErrorMap) parseDefault() {
 	for code, msg := range defaultCode {
-		m.Set(code,msg)
+		m.Set(code, msg)
 	}
 }
 
@@ -139,14 +139,13 @@ func (m *ErrorMap) parse(ename string) error {
 			code := bytes.TrimSpace(optionVal[0])
 			value := bytes.TrimSpace(optionVal[1])
 			if c, err := strconv.Atoi(string(code)); err == nil {
-				m.Set(c,string(value))
+				m.Set(c, string(value))
 			}
 		}
 	}
 
 	return nil
 }
-
 
 /************************************/
 /*********  Error Response **********/
@@ -165,21 +164,21 @@ type ErrorResponse struct {
 	Request string `json:"request"`
 }
 
-func NewError(ctx *context.Context) *Error{
+func NewError(ctx *context.Context) *Error {
 	return &Error{
-		ctx:ctx,
-		error:&ErrorResponse{Request:ctx.Path()},
+		ctx:   ctx,
+		error: &ErrorResponse{Request: ctx.Path()},
 	}
 }
 
-func (res *Error) Code(status, code int) *Error{
+func (res *Error) Code(status, code int) *Error {
 	res.ctx.SetStatus(status)
 	res.error.Code = code
 	res.error.Error = ErrorCode.Get(code)
 	return res
 }
 
-func (res *Error) Message(msg string) *Error{
+func (res *Error) Message(msg string) *Error {
 	res.error.Error = msg
 	return res
 }
@@ -190,7 +189,7 @@ func (res *Error) JSON() {
 		content, _ := json.Marshal(res.error)
 		res.ctx.Write(content)
 	case context.RPC_WEBSOCKET:
-		websocket.JSON.Send(res.ctx.WS,res.error)
+		websocket.JSON.Send(res.ctx.WS, res.error)
 	default:
 
 	}

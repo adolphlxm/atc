@@ -1,7 +1,6 @@
 package logs
 
 import (
-	//"sync/atomic"
 	"fmt"
 	"os"
 	"path"
@@ -10,37 +9,39 @@ import (
 	"time"
 )
 
-//Log message level
+// Log message level
 const (
 	LevelTrace = iota
-	LevelDebug
 	LevelInfo
 	LevelNotice
 	LevelWarn
 	LevelError
 	LevelFatal
+	LevelDebug
 )
 
 const TimeFormat = "2006/01/02 15:04:05.000000"
 
-var LevelName [7]string = [7]string{"Trace", "Debug", "Info", "Notice", "Warn", "Error", "Fatal"}
+var LevelName [7]string = [7]string{"Trace", "Info", "Notice", "Warn", "Error", "Fatal", "Debug"}
 
-type LoggerHandlerType func() IAtcLogger
+type LoggerFunc func() IAtcLogger
 
 type IAtcLogger interface {
+	Init(config string) error
 	Output(msg string) error
 }
 
-var LoggerHandler = make(map[string]LoggerHandlerType)
+var adapters = make(map[string]LoggerFunc)
 
-func Register(name string, handler LoggerHandlerType) {
-	if LoggerHandler == nil {
-		panic("ATC logs: Register handler is nil")
+func Register(adapterName string, handler LoggerFunc) {
+	if adapters == nil {
+		panic("ATC logs: Register LoggerFunc is nil")
 	}
-	if _, found := LoggerHandler[name]; found {
-		panic("ATC logs: Register failed for handler " + name)
+	if _, found := adapters[adapterName]; found {
+		panic("ATC logs: Register failed for LoggerFunc " + adapterName)
 	}
-	LoggerHandler[name] = handler
+
+	adapters[adapterName] = handler
 }
 
 type AtcLogger struct {
@@ -75,14 +76,20 @@ func (l *AtcLogger) SetLevel(level int) {
 	l.level = level
 }
 
-func (l *AtcLogger) SetHandler(name string) error {
+func (l *AtcLogger) SetHandler(adapterName string, configs ...string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if handler, ok := LoggerHandler[name]; ok {
-		l.handler[name] = handler()
+	cf := append(configs,"{}")[0]
+
+	if handler, ok := adapters[adapterName]; ok {
+		l.handler[adapterName] = handler()
+		err := l.handler[adapterName].Init(cf)
+		if err != nil {
+			return fmt.Errorf("ATC logs: %q handler fail, err:%v.", adapterName, err.Error())
+		}
 	} else {
-		return fmt.Errorf("ATC logs: %q handler setting fail.", name)
+		return fmt.Errorf("ATC logs: %q handler setting fail.", adapterName)
 	}
 
 	return nil
@@ -95,7 +102,7 @@ func (l *AtcLogger) Run() {
 			for _, ll := range l.handler {
 				err := ll.Output(msg)
 				if err != nil {
-					fmt.Println("ATC logs: Run the handler to fail.")
+					fmt.Printf("ATC logs: Output handler fail, err:%v\n",err.Error())
 				}
 			}
 		}
@@ -107,7 +114,7 @@ func (l *AtcLogger) Output(level int, msg string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if level < l.level {
+	if level > l.level {
 		return nil
 	}
 
@@ -148,11 +155,7 @@ func (l *AtcLogger) Warn(format string, v ...interface{}) {
 	l.Output(LevelWarn, msg)
 }
 
-func (l *AtcLogger) Error(v ...interface{}) {
-	msg := fmt.Sprintln(v...)
-	l.Output(LevelError, msg)
-}
-func (l *AtcLogger) Errorf(format string, v ...interface{}) {
+func (l *AtcLogger) Error(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelError, msg)
 }

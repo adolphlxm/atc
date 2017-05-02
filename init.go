@@ -17,8 +17,8 @@
 package atc
 
 import (
-	"github.com/adolphlxm/atc/rpc/thrift"
 	"github.com/adolphlxm/atc/logs"
+	"github.com/adolphlxm/atc/rpc/thrift"
 )
 
 var ThriftRPC thrift.Thrift
@@ -32,7 +32,7 @@ func init() {
 
 	// Initialize log
 	Logger = logs.NewLogger(10000)
-	Logger.SetHandler(Aconfig.LogOutput)
+	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`"}`)
 	Logger.SetLevel(Aconfig.LogLevel)
 
 	// Initialize app serve
@@ -40,7 +40,7 @@ func init() {
 
 	// Initalize thrift serve
 	addr := Aconfig.ThriftAddr + ":" + Aconfig.ThriftPort
-	ThriftRPC = thrift.NewThriftServe(`{"addr":"`+addr+`","secure":"`+Aconfig.ThriftSecure+`"}`)
+	ThriftRPC = thrift.NewThriftServe(`{"addr":"` + addr + `","secure":"` + Aconfig.ThriftSecure + `"}`)
 	ThriftRPC.Debug(Aconfig.ThriftDebug)
 	ThriftRPC.Factory(Aconfig.ThriftProtocol, Aconfig.ThriftTransport)
 	ThriftRPC.Timeout(Aconfig.ThriftClientTimeout)

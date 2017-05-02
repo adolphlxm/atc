@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 import (
-	"net/http/httptest"
 	"encoding/json"
+	"net/http/httptest"
 	//"path"
 )
 
@@ -16,7 +16,7 @@ type TestHandler struct {
 }
 
 func (c *TestHandler) Get() {
-	c.Ctx.SetData("code",200)
+	c.Ctx.SetData("code", 200)
 	c.JSON()
 }
 
@@ -36,8 +36,6 @@ func TestHttpGet(t *testing.T) {
 		t.Errorf("url param set to [%v];", data)
 	}
 }
-
-
 
 //func TestRouteRegexp(t *testing.T) {
 //	r, _ := http.NewRequest("GET", "/V1/user/1", nil)

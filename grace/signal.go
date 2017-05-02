@@ -1,10 +1,10 @@
 package grace
 
 import (
-	"os"
-	"syscall"
-	"os/signal"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type SignalFunc func(arg interface{})
@@ -13,9 +13,9 @@ type Signal struct {
 	m map[os.Signal]SignalFunc
 }
 
-func NewSignal() *Signal{
+func NewSignal() *Signal {
 	return &Signal{
-		m:make(map[os.Signal]SignalFunc),
+		m: make(map[os.Signal]SignalFunc),
 	}
 }
 
@@ -34,20 +34,20 @@ func (sig *Signal) Handler(signal os.Signal, arg interface{}) error {
 	return fmt.Errorf("Signal '%v' is not supported.", signal)
 }
 
-func sighup (arg interface{}){
+func sighup(arg interface{}) {
 
 }
 
-func Notoify(){
+func Notoify() {
 	sig := NewSignal()
-	sig.Register(syscall.SIGHUP,sighup)
+	sig.Register(syscall.SIGHUP, sighup)
 
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan)
 
 	for {
 		select {
-		case s := <- sigChan:
+		case s := <-sigChan:
 			err := sig.Handler(s, nil)
 			if err != nil {
 				// 退出

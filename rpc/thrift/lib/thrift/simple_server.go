@@ -34,7 +34,7 @@ import (
 type TSimpleServer struct {
 	quit chan struct{}
 
-	inShutdown        int32     // accessed atomically (non-zero means we're in Shutdown)
+	inShutdown int32 // accessed atomically (non-zero means we're in Shutdown)
 
 	processorFactory       TProcessorFactory
 	serverTransport        TServerTransport
@@ -200,7 +200,7 @@ func (p *TSimpleServer) processRequests(client TTransport) error {
 		if err, ok := err.(TApplicationException); ok && err.TypeId() == UNKNOWN_METHOD {
 			continue
 		}
- 		if !ok {
+		if !ok {
 			break
 		}
 	}

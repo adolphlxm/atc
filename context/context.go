@@ -18,11 +18,12 @@
 package context
 
 import (
-	"code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"code.google.com/p/go.net/websocket"
 )
 
 var (
@@ -186,7 +187,7 @@ func (ctx *Context) SetParams(params map[string]string) {
 func (ctx *Context) parseForm() (err error) {
 
 	if ctx.Request.Form == nil {
-		if strings.Contains(ctx.Header("Context-Type"),"multipart/form-data") {
+		if strings.Contains(ctx.Header("Context-Type"), "multipart/form-data") {
 			// enctype = multipart/form-data
 			err = ctx.Request.ParseMultipartForm(ctx.maxMemory)
 		} else {
@@ -201,7 +202,7 @@ func (ctx *Context) parseForm() (err error) {
 	return nil
 }
 
-func (ctx *Context) MultipartFormMaxMemory(maxMemory int64){
+func (ctx *Context) MultipartFormMaxMemory(maxMemory int64) {
 	ctx.maxMemory = maxMemory
 }
 

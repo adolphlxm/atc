@@ -17,13 +17,14 @@
 package thrift
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"git.apache.org/thrift.git/lib/go/thrift"
 	"strconv"
 	"time"
-	"context"
+
+	"git.apache.org/thrift.git/lib/go/thrift"
 )
 
 type Thrift interface {
@@ -174,7 +175,6 @@ func (t *ThriftServe) runServe() error {
 // involve any contentious mutexes), but that is left as an
 // exercise for the reader.
 var shutdownPollInterval = 500 * time.Millisecond
-
 
 func (t *ThriftServe) Shutdown(ctx context.Context) error {
 	err := t.server.Stop()

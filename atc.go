@@ -18,16 +18,16 @@
 package atc
 
 import (
-	"path"
-	"strings"
 	"context"
-	"time"
 	"os"
 	"os/signal"
+	"path"
+	"strings"
+	"time"
 )
 
 // ATC framework version.
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
 
 var Route *RouterGroup
 
@@ -59,33 +59,32 @@ func Run() {
 		HttpAPP.Run()
 	}
 
-
 	Notify()
 }
 
 // Wait for all HTTP and Thrift fetches to complete.
-func Notify(){
+func Notify() {
 	//sig := grace.NewSignal()
 
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan)
 
 	for {
-		<- sigChan
+		<-sigChan
 		Logger.Trace("Shutting down start...")
 		break
 	}
 
 	if Aconfig.ThriftSupport {
-		ctx,_:=context.WithTimeout(context.Background(),time.Duration(Aconfig.ThriftQTimeout) * time.Second)
+		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
 		ThriftRPC.Shutdown(ctx)
-		Logger.Trace("Shutting down thrift, biggest waiting for %ds...",Aconfig.ThriftQTimeout)
+		Logger.Trace("Shutting down thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
 	}
 
 	if Aconfig.HTTPSupport {
-		ctx,_:=context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout) * time.Second)
+		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
 		HttpAPP.Server.Shutdown(ctx)
-		Logger.Trace("Shutting down http, biggest waiting for %ds...",Aconfig.HTTPQTimeout)
+		Logger.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 		time.Sleep(1 * time.Millisecond)
 	}
 
@@ -97,7 +96,7 @@ type RouterGroup struct {
 
 func (group *RouterGroup) Group(versionPath string) *RouterGroup {
 	return &RouterGroup{
-		versionPath:versionPath,
+		versionPath: versionPath,
 	}
 }
 
@@ -121,11 +120,12 @@ func (group *RouterGroup) Group(versionPath string) *RouterGroup {
 // RPC_WEBSOCKET:
 //	{"version":"V1","method":"GET(POST...)","handler":"users.login","body":""}
 //	{"version":"V2","method":"GET(POST...)","handler":"shop.car.info","body":""}
-func (group *RouterGroup) AddRouter(module string, c HandlerInterface){
-	moduleName := strings.Split(module,".")
+func (group *RouterGroup) AddRouter(module string, c HandlerInterface) {
+	moduleName := strings.Split(module, ".")
 	module = path.Join(moduleName...)
-	HttpAPP.Handler.AddRouter(path.Join("/",group.versionPath,module), c)
+	HttpAPP.Handler.AddRouter(path.Join("/", group.versionPath, module), c)
 }
+
 // AddFilter add filter group.
 //
 // RESTful usage:
@@ -135,25 +135,25 @@ func (group *RouterGroup) AddRouter(module string, c HandlerInterface){
 //	v2 := atc.Route.Group("V2"){
 //		v2.AddFilter(atc.BEFORE_ROUTE,"shop.car.*",AfterLogin)
 //	}
-func (group *RouterGroup) AddFilter(location Location, module string, filter FilterFunc){
-	moduleName := strings.Split(module,".")
+func (group *RouterGroup) AddFilter(location Location, module string, filter FilterFunc) {
+	moduleName := strings.Split(module, ".")
 	module = path.Join(moduleName...)
-	HttpAPP.Handler.AddFilter(location, path.Join("/",group.versionPath,module), filter)
+	HttpAPP.Handler.AddFilter(location, path.Join("/", group.versionPath, module), filter)
 }
 
 // AddRouter add routing.
-func AddRouter(module string, c HandlerInterface){
-	moduleName := strings.Split(module,".")
+func AddRouter(module string, c HandlerInterface) {
+	moduleName := strings.Split(module, ".")
 	module = path.Join(moduleName...)
-	HttpAPP.Handler.AddRouter(path.Join("/",module), c)
+	HttpAPP.Handler.AddRouter(path.Join("/", module), c)
 }
 
-func AddFilter(location Location, module string, filter FilterFunc){
-	moduleName := strings.Split(module,".")
+func AddFilter(location Location, module string, filter FilterFunc) {
+	moduleName := strings.Split(module, ".")
 	module = path.Join(moduleName...)
-	HttpAPP.Handler.AddFilter(location, path.Join("/",module), filter)
+	HttpAPP.Handler.AddFilter(location, path.Join("/", module), filter)
 }
 
-func ExecuteHandler(httpMethod, module string, c *Handler){
-	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/",module), c)
+func ExecuteHandler(httpMethod, module string, c *Handler) {
+	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
 }

@@ -2,7 +2,9 @@
 
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 Thrift RPC的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
-当前版本: 0.1.0 (Beta 2017-04-28)
+要求GO版本 >= 1.8
+
+当前版本: 0.1.1 (Beta 2017-05-02)
 
 稳定版本: 1.0.0 (2017-05)
 
@@ -13,9 +15,24 @@ More info [atc.wiki](http://atc.wiki)
 ## 安装ATC
 
     go get github.com/adolphlxm/atc
-    go get github.com/lxmgo/config
     
-   用到了配置加载包 `github.com/lxmgo/config`, 该GITHUB内容将逐步迁移过来(为了方便管理新开了Adolphlxm)
+  **用到的第三方 go package TAG**
+  
+  ```config 
+    // 配置文件加载包,之前写的一个Github账户，后续会迁移过来，方便管理
+    github.com/lxmgo/config
+    
+    // 官方websocket包
+    code.google.com/p/go.net/websocket
+    
+    // Thrift go 包
+    git.apache.org/thrift.git/lib/go/thrift
+    
+    // xorm 包
+    github.com/go-sql-driver/mysql
+    github.com/go-xorm/xorm
+    github.com/go-xorm/core
+  ```
    
 ## RESTful API 经典案例
 一个经典的ATC例子 `main.go`
@@ -163,6 +180,10 @@ func init() {
 * 支持Websoeckt通信
 * 支持RPC通信 及 平滑退出
     - Thrift 
+    
+## 更新日志
+* 2017.5 
+    - 日志支持file文件写入,通过`app.ini` 配置日志类型
     
 ## 即将支持特性(待定稿)
 
