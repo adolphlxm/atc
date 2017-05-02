@@ -26,10 +26,7 @@ func NewFileLog() IAtcLogger {
 	}
 	return file
 }
-type Test struct {
-	Filename string `json:"filename"`
-	Perm uint32 `json:"perm"`
-}
+
 func (f *File) Init(config string) error {
 
 	err := json.Unmarshal([]byte(config), f)

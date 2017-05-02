@@ -35,7 +35,7 @@ More info [atc.wiki](http://atc.wiki)
   ```
    
 ## RESTful API 经典案例
-一个经典的ATC例子 `main.go`
+一个经典的ATC例子 `atc.go`
 ```go
 package main
 
@@ -154,6 +154,20 @@ func init() {
 
 ### gRPC...
 
+## 编译并运行
+
+    go build atc.go
+    ./atc
+    
+   Flag参数说明：
+   ```config 
+     -c string
+           use -c <config file> (default "conf/app.ini")
+     -m string
+           Use -m <config mode> (default "dev")
+     -v    Use -v <current version>
+   ```
+
 ## ATC项目结构
 <pre>
 ├── conf
@@ -184,6 +198,7 @@ func init() {
 ## 更新日志
 * 2017.5 
     - 日志支持file文件写入,通过`app.ini` 配置日志类型
+    - 支持Flag参数(-c 配置文件, -m 配置环境, -v 当前版本号)
     
 ## 即将支持特性(待定稿)
 

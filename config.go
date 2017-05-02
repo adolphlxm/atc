@@ -1,12 +1,12 @@
 package atc
 
 import (
-	"flag"
 	"fmt"
-	"github.com/lxmgo/config"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/lxmgo/config"
 )
 
 var (
@@ -61,10 +61,10 @@ type Config struct {
 }
 
 // Parsing the configuration
-func ParseConfig() error {
+func ParseConfig(confName string) error {
 	var err error
 
-	AppConfig, err = NewAppConfig("conf/app.ini")
+	AppConfig, err = NewAppConfig(confName)
 	if err != nil {
 		//AppPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 		workPath, _ := os.Getwd()
@@ -110,11 +110,6 @@ func ParseConfig() error {
 		OrmLogLevel:   "LOG_OFF",
 		OrmAliasNames: []string{},
 	}
-
-	// Parsing configuration environment
-	cfg := flag.String("config", "dev", "Use -config <config mode>")
-	flag.Parse()
-	Aconfig.Runmode = *cfg
 
 	Aconfig.HTTPSupport = AppConfig.DefaultBool("http.support", Aconfig.HTTPSupport)
 	Aconfig.HTTPAddr = AppConfig.DefaultString("http.addr", Aconfig.HTTPAddr)

@@ -19,16 +19,33 @@ package atc
 import (
 	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/rpc/thrift"
+	"flag"
+	"fmt"
+	"os"
 )
 
 var ThriftRPC thrift.Thrift
 
 func init() {
+	// Parsing configuration environment
+	runMode := flag.String("m", "dev", "Use -m <config mode>")
+	configFile := flag.String("c","conf/app.ini","use -c <config file>")
+	version := flag.Bool("v", false, "Use -v <current version>")
+	flag.Parse()
+
+	// Show version
+	if *version {
+		fmt.Println(VERSION)
+		os.Exit(0)
+	}
+
 	// Initialize config
-	err := ParseConfig()
+	err := ParseConfig(*configFile)
 	if err != nil {
 		panic(err)
 	}
+
+	Aconfig.Runmode = *runMode
 
 	// Initialize log
 	Logger = logs.NewLogger(10000)
