@@ -1,8 +1,0 @@
-[ATC] [Trace] 2017/05/02 19:19:19.931577 log_test.go#9: Trace info.
-[ATC] [Info] 2017/05/02 19:19:19.931644 log_test.go#10: Info info.
-[ATC] [Notice] 2017/05/02 19:19:19.931649 log_test.go#11: Notice info.
-[ATC] [Debug] 2017/05/02 19:19:19.931651 log_test.go#12: Debug info.
-[ATC] [Trace] 2017/05/02 19:30:03.553439 log_test.go#9: Trace info.
-[ATC] [Info] 2017/05/02 19:30:03.553544 log_test.go#10: Info info.
-[ATC] [Notice] 2017/05/02 19:30:03.553552 log_test.go#11: Notice info.
-[ATC] [Debug] 2017/05/02 19:30:03.553556 log_test.go#12: Debug info.

@@ -22,6 +22,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 )
 
 var ThriftRPC thrift.Thrift
@@ -35,7 +36,7 @@ func init() {
 
 	// Show version
 	if *version {
-		fmt.Println(VERSION)
+		fmt.Println("ATC version",VERSION, runtime.GOOS +"/" + runtime.GOARCH)
 		os.Exit(0)
 	}
 
