@@ -235,13 +235,21 @@ func (ctx *Context) WriteHeader(i int) {
 	ctx.ResponseWriter.WriteHeader(i)
 }
 
+func (ctx *Context) GetStatus() int {
+	return ctx.status
+}
+
 // SetStatus sets response status error code.
 func (ctx *Context) SetStatus(status int) {
 	ctx.status = status
 }
 
-func (ctx *Context) GetStatus() int {
-	return ctx.status
+// returns the stored data for this request.
+func (ctx *Context) GetData(k string) interface{} {
+	if v, ok := ctx.data[k]; ok {
+		return v
+	}
+	return nil
 }
 
 // Data return the implicit data in the input
@@ -258,14 +266,6 @@ func (ctx *Context) SetData(k string, v interface{}) {
 		ctx.data = make(map[string]interface{})
 	}
 	ctx.data[k] = v
-}
-
-// returns the stored data for this request.
-func (ctx *Context) GetData(k string) interface{} {
-	if v, ok := ctx.data[k]; ok {
-		return v
-	}
-	return nil
 }
 
 // JSON

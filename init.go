@@ -30,7 +30,7 @@ var ThriftRPC thrift.Thrift
 func init() {
 	// Parsing configuration environment
 	runMode := flag.String("m", "dev", "Use -m <config mode>")
-	configFile := flag.String("c","conf/app.ini","use -c <config file>")
+	configFile := flag.String("c","../conf/app.ini","use -c <config file>")
 	version := flag.Bool("v", false, "Use -v <current version>")
 	flag.Parse()
 

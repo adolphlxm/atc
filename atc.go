@@ -24,10 +24,11 @@ import (
 	"path"
 	"strings"
 	"time"
+	"syscall"
 )
 
 // ATC framework version.
-const VERSION = "0.1.1"
+const VERSION = "0.2.0"
 
 var Route *RouterGroup
 
@@ -51,7 +52,7 @@ func Run() {
 		if err != nil {
 			panic(err)
 		}
-		Logger.Trace("ATC Thrift server Running on %v", ThriftRPC.Addr())
+		Logger.Trace("Thrift server Running on %v", ThriftRPC.Addr())
 	}
 
 	// If support HTTP serve.
@@ -59,19 +60,29 @@ func Run() {
 		HttpAPP.Run()
 	}
 
-	Notify()
+	Logger.Trace("Process PID for %d", os.Getpid())
+
+	stop()
 }
 
 // Wait for all HTTP and Thrift fetches to complete.
-func Notify() {
-	//sig := grace.NewSignal()
+func stop() {
 
+	// Signal
+	//	1. TERM,INT 立即终止
+	//	2. Other 平滑终止
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan)
 
 	for {
-		<-sigChan
-		Logger.Trace("Shutting down start...")
+		sig := <-sigChan
+		Logger.Trace("%v",sig)
+		switch sig {
+		case syscall.SIGTERM,syscall.SIGINT:
+			os.Exit(1)
+		default:
+			Logger.Trace("Shutting down start...")
+		}
 		break
 	}
 
@@ -87,7 +98,6 @@ func Notify() {
 		Logger.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 		time.Sleep(1 * time.Millisecond)
 	}
-
 }
 
 type RouterGroup struct {
