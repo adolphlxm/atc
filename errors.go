@@ -35,7 +35,7 @@ func init() {
 	ErrorCode = NewErrorMap()
 
 	// In the conf/error. Ini file parsing error code
-	ErrorCode.parse("conf/error.ini")
+	ErrorCode.parse("../conf/error.ini")
 }
 
 /************************************/
