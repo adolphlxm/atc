@@ -30,14 +30,6 @@ var (
 	}
 )
 
-func init() {
-	// Initializes the error maps
-	ErrorCode = NewErrorMap()
-
-	// In the conf/error. Ini file parsing error code
-	ErrorCode.parse("../conf/error.ini")
-}
-
 /************************************/
 /*********    Error code   **********/
 /************************************/

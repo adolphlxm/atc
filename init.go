@@ -51,8 +51,20 @@ func init() {
 	// Initialize log
 	Logger = logs.NewLogger(10000)
 	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
-	Logger.SetLevel(Aconfig.LogLevel)
+	if Aconfig.Debug {
+		Logger.SetLevel(logs.LevelDebug)
+	} else {
+		Logger.SetLevel(Aconfig.LogLevel)
+	}
 
+
+	// Initializes error
+	ErrorCode = NewErrorMap()
+	// In the conf/error. Ini file parsing error code
+	err = ErrorCode.parse(AppConfig.DefaultString("error.file","../conf/error.ini"))
+	if err != nil {
+		Logger.Error("Error file loading err:%v", err.Error())
+	}
 	// Initialize app serve
 	HttpAPP = NewApp()
 
