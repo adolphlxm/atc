@@ -210,6 +210,8 @@ func init() {
     - 优雅的关闭进程
     - 优化错误码配置文件加载,通过`app.ini` 配置错误码文件
     - 优化DEBUG模式
+* 2017.6
+    - utils/encrypt包增加RSA/DES/AES 加解密
     
 ## 即将支持特性(待定稿)
 
