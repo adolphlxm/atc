@@ -1,11 +1,6 @@
 package atc
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"time"
-
 	"github.com/lxmgo/config"
 )
 
@@ -66,11 +61,6 @@ func ParseConfig(confName string) error {
 
 	AppConfig, err = NewAppConfig(confName)
 	if err != nil {
-		//AppPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-		workPath, _ := os.Getwd()
-		workPath, _ = filepath.Abs(workPath)
-		fmt.Printf("workPath: %v", workPath)
-		time.Sleep(1 * time.Millisecond)
 		return err
 	}
 
