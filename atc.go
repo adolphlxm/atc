@@ -41,11 +41,6 @@ func Run() {
 		err error
 	)
 
-	// If support orm serve.
-	if Aconfig.OrmSupport {
-		RunOrm()
-	}
-
 	// If support Thrift serve.
 	if Aconfig.ThriftSupport {
 		err = ThriftRPC.Run()

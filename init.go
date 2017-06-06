@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"path/filepath"
 )
 
 var ThriftRPC thrift.Thrift
@@ -43,6 +44,9 @@ func init() {
 	// Initialize config
 	err := ParseConfig(*configFile)
 	if err != nil {
+		workPath, _ := os.Getwd()
+		workPath, _ = filepath.Abs(workPath)
+		fmt.Printf("workPath: %v", workPath)
 		panic(err)
 	}
 

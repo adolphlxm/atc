@@ -43,7 +43,6 @@ func Register(name string, adapter OrmFunc) {
 }
 
 func NewOrm(adapterName string) (Orm, error) {
-
 	if handler, ok := adapters[adapterName]; ok {
 		return handler(), nil
 	} else {
