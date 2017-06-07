@@ -2,7 +2,7 @@ package xorm
 
 import (
 	"fmt"
-	"github.com/lxmgo/atc/orm"
+	"github.com/adolphlxm/atc/orm"
 	"testing"
 	"time"
 )
