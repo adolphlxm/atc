@@ -9,8 +9,6 @@ import (
 	_ "github.com/adolphlxm/atc/orm/xorm"
 )
 
-var Orm orm.Orm
-
 type OrmConfig struct {
 	Driver   string `json:"driver"`
 	Host     string `json:"host"`
@@ -20,7 +18,7 @@ type OrmConfig struct {
 	LogLevel string `json:"loglevel"`
 }
 
-func RunOrm() {
+func RunOrms() (dbs orm.Orm){
 	var (
 		maxidleconns int
 		maxopenconns int
@@ -30,7 +28,7 @@ func RunOrm() {
 	maxopenconns = AppConfig.DefaultInt("orm.maxopenconns", 0)
 	pingtime = AppConfig.DefaultInt("orm.pingtime", 0)
 
-	Orm, _ = orm.NewOrm("xorm")
+	dbs, _ = orm.NewOrm("xorm")
 
 	for _, aliasname := range Aconfig.OrmAliasNames {
 		keyPerfix := "orm." + aliasname
@@ -49,16 +47,18 @@ func RunOrm() {
 			pingtime = apingtime
 		}
 
-		if err := Orm.Open(aliasname, cfg); err != nil {
+		if err := dbs.Open(aliasname, cfg); err != nil {
 			panic(err)
 		}
-		Orm.Debug(aliasname, Aconfig.Debug)
-		Orm.SetMaxIdleConns(aliasname, maxidleconns)
-		Orm.SetMaxOpenConns(aliasname, maxopenconns)
+		dbs.Debug(aliasname, Aconfig.Debug)
+		dbs.SetMaxIdleConns(aliasname, maxidleconns)
+		dbs.SetMaxOpenConns(aliasname, maxopenconns)
 
 		// Check orm connection
-		go timerTask(aliasname, int64(pingtime))
+		go timerTask(aliasname, int64(pingtime), dbs)
 	}
+
+	return
 }
 
 func newEngineConfig(keyPerfix string) (string, error) {
@@ -78,15 +78,15 @@ func newEngineConfig(keyPerfix string) (string, error) {
 	return string(cfJson), err
 }
 
-func timerTask(aliasname string, timeout int64) {
+func timerTask(aliasname string, timeout int64, db orm.Orm) {
 	if timeout > 0 {
 		timeDuration := time.Duration(timeout)
 		t := time.NewTimer(timeDuration * time.Second)
 		for {
 			select {
 			case <-t.C:
-				if err := Orm.Ping(aliasname); err != nil {
-					Orm.Clone(aliasname)
+				if err := db.Ping(aliasname); err != nil {
+					db.Clone(aliasname)
 					Logger.Trace("ATC orm: reconnection successful to %s", aliasname)
 				}
 				t.Reset(timeDuration * time.Second)

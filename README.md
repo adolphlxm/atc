@@ -154,6 +154,15 @@ func init() {
 
 ### gRPC...
 
+## ORM
+* atc包提供的RunOrms是通过`app.ini`配置文件加载多库初始化方法
+* 返回 `orm interface ` 接口
+
+```go
+    orm := atc.RunOrms()
+    orm.Use("库名").Where("id=?",1).Get(...)
+```
+
 ## 编译并运行
 
     go build atc.go
@@ -212,6 +221,7 @@ func init() {
     - 优化DEBUG模式
 * 2017.6
     - utils/encrypt包增加RSA/DES/AES 加解密
+    - 修复ORM BUG
     
 ## 即将支持特性(待定稿)
 
