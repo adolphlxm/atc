@@ -3,6 +3,12 @@ package utils
 import (
 	"math/rand"
 	"time"
+	"regexp"
+)
+
+const (
+	RegMobile = "^1[34578]\\d{9}$"
+	RegEmail = "^[A-Za-z\\d]+([-_.][A-Za-z\\d]+)*@([A-Za-z\\d]+[-.])+[A-Za-z\\d]{2,4}$"
 )
 
 // 生成随机字符串
@@ -17,4 +23,15 @@ func RandString(length int) string {
 	}
 
 	return string(result)
+}
+
+
+// 手机号验证
+func VerifyMobile(mobile string) bool {
+	return regexp.MustCompile(RegMobile).MatchString(mobile)
+}
+
+// 邮箱验证
+func VerifyEmail(email string) bool {
+	return regexp.MustCompile(RegEmail).MatchString(email)
 }
