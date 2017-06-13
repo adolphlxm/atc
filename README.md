@@ -4,9 +4,9 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.1.1 (Beta 2017-05-02)
+当前版本: 0.3.0 (Beta 2017-06-13)
 
-稳定版本: 1.0.0 (2017-05)
+稳定版本: 1.0.0 (2017-07)
 
 More info [atc.wiki](http://atc.wiki)
 
@@ -222,6 +222,8 @@ func init() {
 * 2017.6
     - utils/encrypt包增加RSA/DES/AES 加解密
     - 修复ORM BUG
+    - rpc/thrift 增加 thrift client 实现, 结合pool对连接进行管理(线程安全，thrift的本身client端是线程不安全的)
+    - pool包 通用连接池管理
     
 ## 即将支持特性(待定稿)
 

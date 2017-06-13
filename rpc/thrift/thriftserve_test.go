@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/lxmgo/atc/rpc/thrift/gen/atcrpc"
-	"github.com/lxmgo/atc/rpc/thrift/gen/micro"
+	"github.com/adolphlxm/atc/rpc/thrift/gen/atcrpc"
+	"github.com/adolphlxm/atc/rpc/thrift/gen/micro"
 	"net"
 	"testing"
 	"time"
@@ -39,6 +39,12 @@ func TestThriftRPC(t *testing.T) {
 // Remote thrift testing.
 func TestRemoteThriftRPC(t *testing.T) {
 	_remoteClient(t, "binary", "framed")
+}
+
+
+// Remote thrift pool client testing.
+func TestRemoteThriftPoolThriftRPC(t *testing.T) {
+	_remoteThriftPoolClient(t, "binary", "framed")
 }
 
 // Thrift serve.
@@ -103,8 +109,7 @@ func _localClient(t *testing.T, protocolT, transportT string) {
 		protocol = thrift.NewTSimpleJSONProtocol(useTransport)
 	}
 
-	mProtocol := thrift.NewTMultiplexedProtocol(protocol, "thriftTest")
-	client := atcrpc.NewAtcrpcThriftClientProtocol(useTransport, mProtocol, mProtocol)
+
 	if err := transport.Open(); err != nil {
 		t.Fatalf("[thrift client] Error opening socket to %s,err:", addr, err)
 	}
@@ -120,6 +125,8 @@ func _localClient(t *testing.T, protocolT, transportT string) {
 		"b": "2",
 	}
 
+	mProtocol := thrift.NewTMultiplexedProtocol(protocol, "thriftTest")
+	client := atcrpc.NewAtcrpcThriftClientProtocol(useTransport, mProtocol, mProtocol)
 	r, err := client.CallBack(rpc, body)
 	if err != nil {
 		t.Fatalf("[thrift client] Error clinet CallBack err:", err)
@@ -176,6 +183,27 @@ func _remoteClient(t *testing.T, protocolT, transportT string) {
 	}
 	defer transport.Close()
 
+	body := map[string]string{
+		"a": "1",
+		"b": "2",
+	}
+	r, err := client.CallBack(1, "adolph", body)
+
+	if err != nil {
+		t.Fatalf("[thrift client] Error clinet CallBack err:", err)
+	}
+	fmt.Println(r)
+}
+
+/************************************/
+/**** Remote pool client testing ****/
+/************************************/
+func _remoteThriftPoolClient(t *testing.T, protocolT, transportT string) {
+	pool := NewThriftPool(net.JoinHostPort("127.0.0.1", "9090"),10,10,10)
+	pool.Factory(protocolT, transportT)
+	protocol := thrift.NewTMultiplexedProtocol(pool.GetTProtocol(),"user")
+
+	client := micro.NewMicroThriftClientProtocol(pool.GetTransport(), protocol, protocol)
 	body := map[string]string{
 		"a": "1",
 		"b": "2",
