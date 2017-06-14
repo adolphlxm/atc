@@ -194,7 +194,7 @@ func init() {
 │         └── router.go
 │   └── thriftrpc
 │         ├── idl
-│         ├── gen
+│         ├── gen-go
 │         ├── ...(.go)
 │         └── router.go
 └── atc.go
