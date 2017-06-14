@@ -25,9 +25,6 @@ More info [atc.wiki](http://atc.wiki)
     // 官方websocket包
     code.google.com/p/go.net/websocket
     
-    // Thrift go 包
-    git.apache.org/thrift.git/lib/go/thrift
-    
     // xorm 包
     github.com/go-sql-driver/mysql
     github.com/go-xorm/xorm
@@ -136,13 +133,11 @@ func init(){
 
 这里就不累赘描述Thrift具体用法了。
 
-Go的Thrift包安装：
-```go
-go get git.apache.org/thrift.git/lib/go/thrift
-```
+* Go的Thrift包已经整合在ATC框架内了，无需重新安装和下载了！
+* 由于Go的Thrift源码有修改，支持RPC平滑退出
+* 使用.thrift IDL 生成 .go 请使用 `atc-tool` 工具(不然可能会报错.)
 
-注：为了实现Thrift RPC平滑退出，改了Thrift Go源码，安装后需要重新覆盖下源码。
-复制 `github.com/adolphlxm/atc/rpc/thrift/lib/thrift` 目录下的源码到 `git.apache.org/thrift.git/lib/go/thrift` 即可。
+[atc-tool 工具](https://github.com/adolphlxm/atc-tool)
 
 Thrift RPC 路由 `router.go`
 ```go
@@ -224,6 +219,7 @@ func init() {
     - 修复ORM BUG
     - rpc/thrift 增加 thrift client 实现, 结合pool对连接进行管理(线程安全，thrift的本身client端是线程不安全的)
     - pool包 通用连接池管理
+    - 优化thrift RPC，支持atc-tool生成工具，使用更方便
     
 ## 即将支持特性(待定稿)
 

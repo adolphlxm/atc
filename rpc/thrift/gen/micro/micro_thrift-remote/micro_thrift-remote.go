@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 	"math"
 	"micro"
 	"net"

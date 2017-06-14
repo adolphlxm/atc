@@ -6,7 +6,7 @@ package atcrpc
 import (
 	"bytes"
 	"fmt"
-	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 )
 
 // (needed to ensure safety because of naive import list construction.)

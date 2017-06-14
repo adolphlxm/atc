@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/adolphlxm/atc/rpc/thrift/gen/atcrpc"
-	"github.com/adolphlxm/atc/rpc/thrift/gen/micro"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
+	"github.com/adolphlxm/atc/rpc/thrift/gen/atcrpc"
+	"github.com/adolphlxm/atc/rpc/thrift/gen/micro"
 )
 
 var (

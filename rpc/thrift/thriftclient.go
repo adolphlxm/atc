@@ -1,7 +1,7 @@
 package thrift
 
 import (
-	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 	"github.com/adolphlxm/atc/pool"
 	"time"
 )

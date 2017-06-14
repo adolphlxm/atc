@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"time"
 
-	"git.apache.org/thrift.git/lib/go/thrift"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 )
 
 type Thrift interface {
