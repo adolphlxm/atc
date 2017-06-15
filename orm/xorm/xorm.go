@@ -37,6 +37,11 @@ func (this *Orm) Open(aliasName, config string) error {
 		return err
 	}
 
+	// The Ping () for the database connection test
+	if err = engine.Ping(); err != nil {
+		return err
+	}
+
 	switch cf["loglevel"] {
 	case "LOG_UNKNOWN":
 		this.logLevel = core.LOG_UNKNOWN
