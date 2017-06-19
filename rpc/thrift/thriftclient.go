@@ -8,9 +8,10 @@ import (
 
 type ThriftPool struct {
 	pool      *pool.Pool
-	protocol  thrift.TProtocol
-	transport thrift.TTransport
+	protocolFactory  string
+	transportFactory string
 }
+
 
 func NewThriftPool(addr string, maxActive, maxIdle int, idleTimeout time.Duration) *ThriftPool {
 	thriftPool := &pool.Pool{
@@ -35,9 +36,15 @@ func NewThriftPool(addr string, maxActive, maxIdle int, idleTimeout time.Duratio
 	return &ThriftPool{pool: thriftPool}
 }
 
-func (this *ThriftPool) Factory(protocol, transport string) error {
+func (this *ThriftPool) SetFactory(protocolFactory, transportFactory string) {
+	this.protocolFactory = protocolFactory
+	this.transportFactory = transportFactory
+}
+
+
+func (this *ThriftPool) GetTtransport() (thrift.TTransport,error) {
 	var transportFactory thrift.TTransportFactory
-	switch transport {
+	switch this.transportFactory {
 	case "framed":
 		transportFactory = thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	case "memorybuffer":
@@ -48,32 +55,30 @@ func (this *ThriftPool) Factory(protocol, transport string) error {
 
 	v, err := this.pool.Get()
 	if err != nil {
-		return err
+		return nil, err
 	}
+	// Factory class used to create wrapped instance of Transports.
+	// This is used primarily in servers, which get Transports from
+	// a ServerTransport and then may want to mutate them (i.e. create
+	// a BufferedTransport from the underlying base transport)
 
-	this.transport = transportFactory.GetTransport(v.(thrift.TTransport))
+	return transportFactory.GetTransport(v.(thrift.TTransport)),nil
+}
 
-	switch protocol {
+func (this *ThriftPool) GetTprotocol(ttransport thrift.TTransport) (tprotocol thrift.TProtocol) {
+	switch this.protocolFactory {
 	case "binary":
-		this.protocol = thrift.NewTBinaryProtocol(this.transport, false, true)
+		tprotocol = thrift.NewTBinaryProtocol(ttransport, false, true)
 	case "compact":
-		this.protocol = thrift.NewTCompactProtocol(this.transport)
+		tprotocol = thrift.NewTCompactProtocol(ttransport)
 	case "json":
-		this.protocol = thrift.NewTJSONProtocol(this.transport)
+		tprotocol = thrift.NewTJSONProtocol(ttransport)
 	case "simplejson":
-		this.protocol = thrift.NewTSimpleJSONProtocol(this.transport)
+		tprotocol = thrift.NewTSimpleJSONProtocol(ttransport)
 	}
-	return nil
+	return
 }
 
-func (this *ThriftPool) GetTProtocol() thrift.TProtocol {
-	return this.protocol
-}
-
-func (this *ThriftPool) GetTransport() thrift.TTransport {
-	return this.transport
-}
-
-func (this *ThriftPool) NewTMultiplexedProtocol(serviceName string) *thrift.TMultiplexedProtocol{
-	return thrift.NewTMultiplexedProtocol(this.GetTProtocol(),serviceName)
+func (this *ThriftPool) NewTmultiplexedProtocol(serviceName string,ttransport thrift.TTransport) *thrift.TMultiplexedProtocol {
+	return thrift.NewTMultiplexedProtocol(this.GetTprotocol(ttransport),serviceName)
 }

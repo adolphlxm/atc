@@ -201,10 +201,16 @@ func _remoteClient(t *testing.T, protocolT, transportT string) {
 /************************************/
 func _remoteThriftPoolClient(t *testing.T, protocolT, transportT string) {
 	pool := NewThriftPool(net.JoinHostPort("127.0.0.1", "9090"),10,10,10)
-	pool.Factory(protocolT, transportT)
-	protocol := pool.NewTMultiplexedProtocol("user")
+	pool.SetFactory(protocolT, transportT)
 
-	client := micro.NewMicroThriftClientProtocol(pool.GetTransport(), protocol, protocol)
+	// Client calls
+	ttransport,err := pool.GetTtransport()
+	if err != nil {
+		t.Errorf("[thrift client] Error client socket Transport err.")
+		return
+	}
+	mulProtocol := pool.NewTmultiplexedProtocol("user",ttransport)
+	client := micro.NewMicroThriftClientProtocol(ttransport, mulProtocol, mulProtocol)
 	body := map[string]string{
 		"a": "1",
 		"b": "2",
