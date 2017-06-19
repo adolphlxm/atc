@@ -73,3 +73,7 @@ func (this *ThriftPool) GetTProtocol() thrift.TProtocol {
 func (this *ThriftPool) GetTransport() thrift.TTransport {
 	return this.transport
 }
+
+func (this *ThriftPool) NewTMultiplexedProtocol(serviceName string) *thrift.TMultiplexedProtocol{
+	return thrift.NewTMultiplexedProtocol(this.GetTProtocol(),serviceName)
+}
