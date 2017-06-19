@@ -206,7 +206,7 @@ func _remoteThriftPoolClient(t *testing.T, protocolT, transportT string) {
 	// Client calls
 	ttransport,err := pool.GetTtransport()
 	if err != nil {
-		
+
 		t.Errorf("[thrift client] Error client socket Transport err.")
 		return
 	}
