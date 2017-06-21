@@ -57,7 +57,7 @@ func (this *ThriftPool) GetTtransport() (thrift.TTransport,error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Factory class used to create wrapped instance of Transports.
 	// This is used primarily in servers, which get Transports from
 	// a ServerTransport and then may want to mutate them (i.e. create
