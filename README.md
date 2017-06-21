@@ -6,7 +6,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 当前版本: 0.3.0 (Beta 2017-06-13)
 
-ATC 概念 [设计架构](http://github.com/adolphlxm/atc/doc/README.md)
+ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
 [老版本GITHUB](https://github.com/lxmgo)
 
