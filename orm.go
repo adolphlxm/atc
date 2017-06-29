@@ -29,12 +29,11 @@ func RunOrms() (dbs orm.Orm){
 	pingtime = AppConfig.DefaultInt("orm.pingtime", 0)
 
 	dbs, _ = orm.NewOrm("xorm")
-
 	for _, aliasname := range Aconfig.OrmAliasNames {
 		keyPerfix := "orm." + aliasname
 		cfg, err := newEngineConfig(keyPerfix)
 		if err != nil {
-			break
+			panic(err)
 		}
 
 		if conns1 := AppConfig.DefaultInt(keyPerfix+".c.maxidleconns", 0); conns1 > 0 {
