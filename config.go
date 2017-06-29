@@ -31,6 +31,7 @@ type Config struct {
 	FrontDir       []string
 	FrontDirectory bool
 	FrontSuffix    string
+	FrontHost	   string
 
 	// Thrift
 	ThriftSupport       bool
@@ -80,6 +81,7 @@ func ParseConfig(confName string) error {
 		FrontDir:       []string{"index", "assets"},
 		FrontDirectory: false,
 		FrontSuffix:    "html",
+		FrontHost: "",
 
 		ThriftSupport:       true,
 		ThriftDebug:         false,
@@ -115,6 +117,7 @@ func ParseConfig(confName string) error {
 	Aconfig.FrontDir = AppConfig.DefaultStrings("front.dir", Aconfig.FrontDir)
 	Aconfig.FrontDirectory = AppConfig.DefaultBool("front.directory", Aconfig.FrontDirectory)
 	Aconfig.FrontSuffix = AppConfig.DefaultString("front.suffix", Aconfig.FrontSuffix)
+	Aconfig.FrontHost = AppConfig.DefaultString("front.host", Aconfig.FrontHost)
 
 	Aconfig.ThriftSupport = AppConfig.DefaultBool("thrift.support", Aconfig.ThriftSupport)
 	Aconfig.ThriftDebug = AppConfig.DefaultBool("thrift.debug", Aconfig.ThriftDebug)
