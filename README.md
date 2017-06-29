@@ -218,6 +218,7 @@ func init() {
     - rpc/thrift 增加 thrift client 实现, 结合pool对连接进行管理(线程安全，thrift的本身client端是线程不安全的)
     - pool包 通用连接池管理
     - 优化thrift RPC，支持atc-tool生成工具，使用更方便
+    - 支持 API 跨域配置, 通过`app.ini` 配置跨域
     
 ## 即将支持特性(待定稿)
 
