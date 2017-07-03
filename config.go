@@ -57,7 +57,7 @@ type Config struct {
 }
 
 // Parsing the configuration
-func ParseConfig(confName string) error {
+func ParseConfig(confName, runmode string) error {
 	var err error
 
 	AppConfig, err = NewAppConfig(confName)
@@ -101,6 +101,10 @@ func ParseConfig(confName string) error {
 		OrmLogDebug:   false,
 		OrmLogLevel:   "LOG_OFF",
 		OrmAliasNames: []string{},
+	}
+
+	if runmode != "" {
+		Aconfig.Runmode = runmode
 	}
 
 	Aconfig.HTTPSupport = AppConfig.DefaultBool("http.support", Aconfig.HTTPSupport)
