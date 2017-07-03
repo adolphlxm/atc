@@ -42,6 +42,7 @@ func init() {
 	}
 
 	// Initialize config
+	Aconfig.Runmode = *runMode
 	err := ParseConfig(*configFile)
 	if err != nil {
 		workPath, _ := os.Getwd()
@@ -50,8 +51,7 @@ func init() {
 		panic(err)
 	}
 
-	Aconfig.Runmode = *runMode
-
+	
 	// Initialize log
 	Logger = logs.NewLogger(10000)
 	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
