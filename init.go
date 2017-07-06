@@ -17,13 +17,14 @@
 package atc
 
 import (
-	"github.com/adolphlxm/atc/logs"
-	"github.com/adolphlxm/atc/rpc/thrift"
 	"flag"
 	"fmt"
 	"os"
 	"runtime"
 	"path/filepath"
+
+	"github.com/adolphlxm/atc/logs"
+	"github.com/adolphlxm/atc/rpc/thrift"
 )
 
 var ThriftRPC thrift.Thrift
@@ -50,24 +51,21 @@ func init() {
 		panic(err)
 	}
 
-
-	// Initialize log
-	Logger = logs.NewLogger(10000)
-	Logger.SetHandler(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
+	logs.SetLogger(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
 	if Aconfig.Debug {
-		Logger.SetLevel(logs.LevelDebug)
+		logs.SetLevel(logs.LevelDebug)
 	} else {
-		Logger.SetLevel(Aconfig.LogLevel)
+		logs.SetLevel(Aconfig.LogLevel)
 	}
-
 
 	// Initializes error
 	ErrorCode = NewErrorMap()
 	// In the conf/error. Ini file parsing error code
 	err = ErrorCode.parse(AppConfig.DefaultString("error.file","../conf/error.ini"))
 	if err != nil {
-		Logger.Error("Error file loading err:%v", err.Error())
+		logs.Error("Error file loading err:%v", err.Error())
 	}
+
 	// Initialize app serve
 	HttpAPP = NewApp()
 

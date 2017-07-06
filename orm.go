@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/orm"
 	_ "github.com/adolphlxm/atc/orm/xorm"
 )
@@ -86,7 +87,7 @@ func timerTask(aliasname string, timeout int64, db orm.Orm) {
 			case <-t.C:
 				if err := db.Ping(aliasname); err != nil {
 					db.Clone(aliasname)
-					Logger.Trace("ATC orm: reconnection successful to %s", aliasname)
+					logs.Trace("ATC orm: reconnection successful to %s", aliasname)
 				}
 				t.Reset(timeDuration * time.Second)
 			}

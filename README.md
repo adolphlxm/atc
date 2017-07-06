@@ -156,6 +156,19 @@ func init() {
     orm.Use("库名").Where("id=?",1).Get(...)
 ```
 
+## 日志处理
+**通过`app.ini`配置日志输出引擎**
+
+**通用使用方式**
+
+```go
+    logs.Debug("")
+    logs.Info("")
+    logs.Warn("")
+    logs.Error("")
+    ...
+```
+
 ## 编译并运行
 
     go build atc.go
@@ -221,6 +234,7 @@ func init() {
     - 支持 API 跨域配置, 通过`app.ini` 配置跨域
 * 2017.7
     - 修复不同环境配置`app.ini`不生效 BUG
+    - 优化日志模块 `logs` 包，使用更方便
     
 ## 即将支持特性(待定稿)
 

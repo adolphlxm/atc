@@ -22,6 +22,12 @@ const (
 
 const TimeFormat = "2006/01/02 15:04:05.000000"
 
+// Name for adapter with ATC official support
+const (
+	AdapterStdout = "stdout"
+	AdapterFile = "file"
+)
+
 var LevelName [7]string = [7]string{"Trace", "Info", "Notice", "Warn", "Error", "Fatal", "Debug"}
 
 type LoggerFunc func() IAtcLogger
@@ -76,7 +82,7 @@ func (l *AtcLogger) SetLevel(level int) {
 	l.level = level
 }
 
-func (l *AtcLogger) SetHandler(adapterName string, configs ...string) error {
+func (l *AtcLogger) SetLogger(adapterName string, configs ...string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -113,7 +119,6 @@ func (l *AtcLogger) Output(level int, msg string) error {
 	now := time.Now().Format(TimeFormat)
 	l.mu.Lock()
 	defer l.mu.Unlock()
-
 	if level > l.level {
 		return nil
 	}
@@ -164,4 +169,43 @@ func (l *AtcLogger) Fatal(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelFatal, msg)
 	os.Exit(1)
+}
+
+// Defaultlogs is the default ServeMux used by Serve.
+var defaultlogs = NewLogger(10000)
+
+func SetLogger(adapterName string, configs ...string){
+	defaultlogs.SetLogger(adapterName, configs...)
+}
+
+func SetLevel(level int) {
+	defaultlogs.SetLevel(level)
+}
+
+func Trace(format string, v ...interface{}){
+	defaultlogs.Trace(format, v...)
+}
+
+func Debug(format string, v ...interface{}){
+	defaultlogs.Debug(format, v...)
+}
+
+func Info(format string, v ...interface{}){
+	defaultlogs.Info(format, v...)
+}
+
+func Notice(format string, v ...interface{}){
+	defaultlogs.Notice(format, v...)
+}
+
+func Warn(format string, v ...interface{}){
+	defaultlogs.Warn(format, v...)
+}
+
+func Error(format string, v ...interface{}){
+	defaultlogs.Error(format, v...)
+}
+
+func Fatal(format string, v ...interface{}){
+	defaultlogs.Fatal(format, v...)
 }

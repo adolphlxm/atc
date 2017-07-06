@@ -25,10 +25,12 @@ import (
 	"strings"
 	"time"
 	"syscall"
+
+	"github.com/adolphlxm/atc/logs"
 )
 
 // ATC framework version.
-const VERSION = "0.3.0"
+const VERSION = "0.5.0"
 
 var Route *RouterGroup
 
@@ -47,7 +49,7 @@ func Run() {
 		if err != nil {
 			panic(err)
 		}
-		Logger.Trace("Thrift server Running on %v", ThriftRPC.Addr())
+		logs.Trace("Thrift server Running on %v", ThriftRPC.Addr())
 	}
 
 	// If support HTTP serve.
@@ -55,7 +57,7 @@ func Run() {
 		HttpAPP.Run()
 	}
 
-	Logger.Trace("Process PID for %d", os.Getpid())
+	logs.Trace("Process PID for %d", os.Getpid())
 
 	stop()
 }
@@ -71,12 +73,12 @@ func stop() {
 
 	for {
 		sig := <-sigChan
-		Logger.Trace("%v",sig)
+		logs.Trace("%v",sig)
 		switch sig {
 		case syscall.SIGTERM,syscall.SIGINT:
 			os.Exit(1)
 		default:
-			Logger.Trace("Shutting down start...")
+			logs.Trace("Shutting down start...")
 		}
 		break
 	}
@@ -84,13 +86,13 @@ func stop() {
 	if Aconfig.ThriftSupport {
 		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
 		ThriftRPC.Shutdown(ctx)
-		Logger.Trace("Shutting down thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
+		logs.Trace("Shutting down thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
 	}
 
 	if Aconfig.HTTPSupport {
 		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
 		HttpAPP.Server.Shutdown(ctx)
-		Logger.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
+		logs.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 		time.Sleep(1 * time.Millisecond)
 	}
 }

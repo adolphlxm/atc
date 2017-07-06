@@ -18,8 +18,6 @@ package atc
 
 import (
 	"bytes"
-	"code.google.com/p/go.net/websocket"
-	"github.com/adolphlxm/atc/context"
 	"net/http"
 	"path"
 	"reflect"
@@ -27,7 +25,10 @@ import (
 	"strings"
 	"sync"
 	"time"
-	//"github.com/lxmgo/atc/rpc/gen/atcrpc"
+
+	"github.com/adolphlxm/atc/logs"
+	"code.google.com/p/go.net/websocket"
+	"github.com/adolphlxm/atc/context"
 )
 
 type Location int
@@ -135,7 +136,7 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer h.recoverPanic(ctx)
 
-	Logger.Trace("%s %s for %v", r.Method, r.URL.Path, ctx.IP())
+	logs.Trace("%s %s for %v", r.Method, r.URL.Path, ctx.IP())
 
 	// Static files routing.
 	if Aconfig.FrontSupport {
@@ -193,10 +194,10 @@ func (h *HandlerRouter) recoverPanic(c *context.Context) {
 	if err := recover(); err != nil {
 		// Is open panic
 		if !Aconfig.Debug {
-			Logger.Fatal("%s request recover: %v", c.Path(), err)
+			logs.Fatal("%s request recover: %v", c.Path(), err)
 		}
 
-		Logger.Error("%s request recover: %v", c.Path(), err)
+		logs.Error("%s request recover: %v", c.Path(), err)
 	}
 }
 
@@ -262,7 +263,7 @@ func (h *HandlerRouter) findFilter(location Location, requestPath string, c *con
 			// check method and path
 			if filter.MatchPath(requestPath) {
 				filter.RunFilter(c)
-				Logger.Trace("Execution handler filter path:%v", filter.Pattern)
+				logs.Trace("Execution handler filter path:%v", filter.Pattern)
 			}
 		}
 	}
