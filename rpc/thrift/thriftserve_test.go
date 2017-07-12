@@ -204,22 +204,26 @@ func _remoteThriftPoolClient(t *testing.T, protocolT, transportT string) {
 	pool.SetFactory(protocolT, transportT)
 
 	// Client calls
-	ttransport,err := pool.GetTtransport()
-	if err != nil {
+	for i:=0;i<11;i++ {
+		conn,err := pool.Get()
+		if err != nil {
 
-		t.Errorf("[thrift client] Error client socket Transport err.")
-		return
-	}
-	mulProtocol := pool.NewTmultiplexedProtocol("user",ttransport)
-	client := micro.NewMicroThriftClientProtocol(ttransport, mulProtocol, mulProtocol)
-	body := map[string]string{
-		"a": "1",
-		"b": "2",
-	}
-	r, err := client.CallBack(1, "adolph", body)
+			t.Errorf("[thrift client] Error client pool err:%s",err.Error())
+			return
+		}
+		mulProtocol := conn.NewTmultiplexedProtocol("user")
+		client := micro.NewMicroThriftClientProtocol(conn.GetTtransport(), conn.GetTprotocol(), mulProtocol)
+		body := map[string]string{
+			"a": "1",
+			"b": "2",
+		}
+		r, err := client.CallBack(1, "adolph", body)
 
-	if err != nil {
-		t.Fatalf("[thrift client] Error clinet CallBack err:", err)
+		if err != nil {
+			t.Fatalf("[thrift client] Error clinet CallBack err:", err)
+		}
+		conn.Close()
+		fmt.Println(r)
 	}
-	fmt.Println(r)
+
 }

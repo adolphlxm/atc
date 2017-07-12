@@ -1,17 +1,29 @@
 package thrift
 
 import (
-	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 	"github.com/adolphlxm/atc/pool"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 	"time"
 )
 
-type ThriftPool struct {
-	pool      *pool.Pool
-	protocolFactory  string
-	transportFactory string
+type Conn interface {
+	// Close thrift connection
+	Close() error
+
+	GetTtransport() thrift.TTransport
+	GetTprotocol() thrift.TProtocol
+	NewTmultiplexedProtocol(serviceName string) *thrift.TMultiplexedProtocol
 }
 
+type ThriftPool struct {
+	p           *pool.Pool
+	c           *thrift.TSocket
+	tprotocolF  thrift.TProtocolFactory
+	ttransportF thrift.TTransportFactory
+
+	ttransport thrift.TTransport
+	tprotocol  thrift.TProtocol
+}
 
 func NewThriftPool(addr string, maxActive, maxIdle int, idleTimeout time.Duration) *ThriftPool {
 	thriftPool := &pool.Pool{
@@ -31,29 +43,35 @@ func NewThriftPool(addr string, maxActive, maxIdle int, idleTimeout time.Duratio
 		},
 		MaxActive:   maxActive,
 		MaxIdle:     maxIdle,
-		IdleTimeout: idleTimeout,
+		IdleTimeout: idleTimeout * time.Second,
 	}
-	return &ThriftPool{pool: thriftPool}
+	return &ThriftPool{p: thriftPool}
 }
 
 func (this *ThriftPool) SetFactory(protocolFactory, transportFactory string) {
-	this.protocolFactory = protocolFactory
-	this.transportFactory = transportFactory
-}
-
-
-func (this *ThriftPool) GetTtransport() (thrift.TTransport,error) {
-	var transportFactory thrift.TTransportFactory
-	switch this.transportFactory {
+	switch transportFactory {
 	case "framed":
-		transportFactory = thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
+		this.ttransportF = thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	case "memorybuffer":
-		transportFactory = thrift.NewTMemoryBufferTransportFactory(1000)
+		this.ttransportF = thrift.NewTMemoryBufferTransportFactory(1000)
 	case "buffered":
-		transportFactory = thrift.NewTBufferedTransportFactory(1024)
+		this.ttransportF = thrift.NewTBufferedTransportFactory(1024)
 	}
 
-	v, err := this.pool.Get()
+	switch protocolFactory {
+	case "binary":
+		this.tprotocolF = thrift.NewTBinaryProtocolFactory(false, true)
+	case "compact":
+		this.tprotocolF = thrift.NewTCompactProtocolFactory()
+	case "json":
+		this.tprotocolF = thrift.NewTJSONProtocolFactory()
+	case "simplejson":
+		this.tprotocolF = thrift.NewTSimpleJSONProtocolFactory()
+	}
+}
+
+func (this *ThriftPool) Get() (Conn, error) {
+	c, err := this.p.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -62,23 +80,23 @@ func (this *ThriftPool) GetTtransport() (thrift.TTransport,error) {
 	// This is used primarily in servers, which get Transports from
 	// a ServerTransport and then may want to mutate them (i.e. create
 	// a BufferedTransport from the underlying base transport)
-	return transportFactory.GetTransport(v.(thrift.TTransport)),nil
+	ttransport := this.ttransportF.GetTransport(c.(*thrift.TSocket))
+	tprotocol := this.tprotocolF.GetProtocol(ttransport)
+	return &ThriftPool{p: this.p, c: c.(*thrift.TSocket), tprotocolF: this.tprotocolF, ttransportF: this.ttransportF, ttransport: ttransport, tprotocol: tprotocol}, err
 }
 
-func (this *ThriftPool) GetTprotocol(ttransport thrift.TTransport) (tprotocol thrift.TProtocol) {
-	switch this.protocolFactory {
-	case "binary":
-		tprotocol = thrift.NewTBinaryProtocol(ttransport, false, true)
-	case "compact":
-		tprotocol = thrift.NewTCompactProtocol(ttransport)
-	case "json":
-		tprotocol = thrift.NewTJSONProtocol(ttransport)
-	case "simplejson":
-		tprotocol = thrift.NewTSimpleJSONProtocol(ttransport)
-	}
-	return
+func (this *ThriftPool) Close() error {
+	return this.p.Put(this.c, false)
 }
 
-func (this *ThriftPool) NewTmultiplexedProtocol(serviceName string,ttransport thrift.TTransport) *thrift.TMultiplexedProtocol {
-	return thrift.NewTMultiplexedProtocol(this.GetTprotocol(ttransport),serviceName)
+func (this *ThriftPool) GetTtransport() thrift.TTransport {
+	return this.ttransport
+}
+
+func (this *ThriftPool) GetTprotocol() thrift.TProtocol {
+	return this.tprotocol
+}
+
+func (this *ThriftPool) NewTmultiplexedProtocol(serviceName string) *thrift.TMultiplexedProtocol {
+	return thrift.NewTMultiplexedProtocol(this.GetTprotocol(), serviceName)
 }

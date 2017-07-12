@@ -80,8 +80,9 @@ func (p *Pool) Get() (interface{}, error) {
 
 // Put adds conn back to the pool, use forceClose to close the connection forcely
 func (p *Pool) Put(c interface{}, forceClose bool) error {
+	p.mu.Lock()
+
 	if !forceClose {
-		p.mu.Lock()
 		if !p.closed {
 			p.idle.PushFront(idleConn{t: nowFunc(), c: c})
 			if p.idle.Len() > p.MaxIdle {
@@ -91,28 +92,31 @@ func (p *Pool) Put(c interface{}, forceClose bool) error {
 				c = nil
 			}
 		}
-		p.mu.Unlock()
 	}
 	// close exceed conn
 	if c != nil {
-		p.mu.Lock()
-		p.active -= 1
+		p.release()
 		p.mu.Unlock()
-		return p.Close(c)
+		return p.Close(c) // 关闭该连接
 	}
+
+	if p.cond != nil {
+		p.cond.Signal() // 成功放回空闲连接通知其他阻塞的进程
+	}
+	p.mu.Unlock()
 	return nil
 }
 
 // get prunes stale connections and returns a connection from the idle list or
 // creates a new connection.
-func (p *Pool) get() (interface{} , error) {
+func (p *Pool) get() (interface{}, error) {
 	p.mu.Lock()
 
 	// Prune stale connections.
 	// 最大空闲连接等待时间, 超过此时间后关闭连接
 	if timeout := p.IdleTimeout; timeout > 0 {
 		for i, n := 0, p.idle.Len(); i < n; i++ {
-			// 返回链表最后一个元素
+			// 返回链表最后一个元素(空闲时间最长)
 			e := p.idle.Back()
 			if e == nil {
 				break
@@ -122,13 +126,14 @@ func (p *Pool) get() (interface{} , error) {
 			ic := e.Value.(idleConn)
 
 			// ic.t + timeout
+			// 如果空闲时间最长的连接都没有超时，则不修剪
 			if ic.t.Add(timeout).After(nowFunc()) {
 				break
 			}
 
-			// 从链表中删除该元素
+			// 从空闲连接链表中删除该元素
 			p.idle.Remove(e)
-			// active -1
+			// 减少p.active, 发消息给阻塞的请求
 			p.release()
 			p.mu.Unlock()
 
@@ -143,7 +148,7 @@ func (p *Pool) get() (interface{} , error) {
 
 		// Get idle connection.
 		for i, n := 0, p.idle.Len(); i < n; i++ {
-			// 返回链表第一个元素
+			// 返回链表第一个元素，刚刚使用过的连接
 			e := p.idle.Front()
 			if e == nil {
 				break
@@ -164,8 +169,7 @@ func (p *Pool) get() (interface{} , error) {
 			p.release()
 		}
 
-		// Check for pool closed before dialing a new connection.
-
+		// 检查pool本身有没有关闭
 		if p.closed {
 			p.mu.Unlock()
 			return nil, errors.New("atc: get on closed pool")
