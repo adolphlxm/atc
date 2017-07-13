@@ -6,13 +6,14 @@ RPC引擎目前支持Thrift(client & serve)
     go get github.com/adolphlxm/atc/rpc/thrift
    
 # Thrift服务端使用步骤
-##第一步：引入包
-    
+
+## 第一步：引入包
+   
     import(
         "github.com/adolphlxm/atc/rpc/thrift"
     )
     
-##第二步：初始化服务
+## 第二步：初始化服务
     
     // 创建服务实例
     ThriftRPC := thrift.NewThriftServe(`{"addr":"127.0.0,1:9090"}`)
@@ -23,11 +24,11 @@ RPC引擎目前支持Thrift(client & serve)
 	// 设置超时时间
 	ThriftRPC.Timeout(10)
 
-##第三步：启动服务
+## 第三步：启动服务
 
     ThriftRPC.Run()
     
-##第四步：根据逻辑设置平滑退出
+## 第四步：根据逻辑设置平滑退出
 
     ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
     ThriftRPC.Shutdown(ctx)
@@ -57,18 +58,18 @@ thrift命令行工具，用于 thrift IDL .go 文件生产
     $ atc-tool thrift -r --gen go xxx.thrift
     
 # Thrift客户端使用步骤
-##第一步：引入包
+## 第一步：引入包
     
     import(
         "github.com/adolphlxm/atc/rpc/thrift"
     )
     
-##第二步：初始化客户端连接池(由于thrift client 是非线程安全，So 提供了一个连接池管理)
+## 第二步：初始化客户端连接池(由于thrift client 是非线程安全，So 提供了一个连接池管理)
 
     pool := NewThriftPool(net.JoinHostPort("127.0.0.1", "9090"),10,10,10)
     pool.SetFactory("binary", "framed")
     
-##第三步：开始使用
+## 第三步：开始使用
     
     // 获取一个可用连接
     conn,err := pool.Get()
