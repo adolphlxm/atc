@@ -65,7 +65,7 @@ func NewLogger(channellen int64) *AtcLogger {
 	loger := &AtcLogger{
 		handler: make(map[string]IAtcLogger),
 		level:   LevelFatal,
-		skip:    2,
+		skip:    3,
 		msg:     make(chan string, channellen),
 	}
 
