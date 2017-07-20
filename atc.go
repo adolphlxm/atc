@@ -67,7 +67,7 @@ func stop() {
 
 	// Signal
 	//	1. TERM,INT 立即终止
-	//	2. Other 平滑终止
+	//	2. QUIT 平滑终止
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan)
 
@@ -77,7 +77,7 @@ func stop() {
 		switch sig {
 		case syscall.SIGTERM,syscall.SIGINT:
 			os.Exit(1)
-		default:
+		case syscall.SIGQUIT:
 			logs.Trace("Shutting down start...")
 		}
 		break
