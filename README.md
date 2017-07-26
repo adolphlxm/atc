@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.6.0 (Beta 2017-06-13)
+当前版本: 0.6.1 (Beta 2017-07-26)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
@@ -236,6 +236,7 @@ func init() {
     - 修复不同环境配置`app.ini`不生效 BUG
     - 优化日志模块 `logs` 包，使用更方便
     - 重构thrift client pool 封装，修复若干BUG
+    - 修复日志级别BUG
     
 ## 即将支持特性(待定稿)
 

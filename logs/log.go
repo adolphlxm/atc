@@ -11,12 +11,12 @@ import (
 
 // Log message level
 const (
-	LevelTrace = iota
-	LevelInfo
-	LevelNotice
-	LevelWarn
+	LevelFatal = iota
 	LevelError
-	LevelFatal
+	LevelWarn
+	LevelNotice
+	LevelInfo
+	LevelTrace
 	LevelDebug
 )
 
@@ -25,7 +25,7 @@ const TimeFormat = "2006/01/02 15:04:05.000000"
 // Name for adapter with ATC official support
 const (
 	AdapterStdout = "stdout"
-	AdapterFile = "file"
+	AdapterFile   = "file"
 )
 
 var LevelName [7]string = [7]string{"Trace", "Info", "Notice", "Warn", "Error", "Fatal", "Debug"}
@@ -86,7 +86,7 @@ func (l *AtcLogger) SetLogger(adapterName string, configs ...string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	cf := append(configs,"{}")[0]
+	cf := append(configs, "{}")[0]
 
 	if handler, ok := adapters[adapterName]; ok {
 		l.handler[adapterName] = handler()
@@ -108,7 +108,7 @@ func (l *AtcLogger) Run() {
 			for _, ll := range l.handler {
 				err := ll.Output(msg)
 				if err != nil {
-					fmt.Printf("ATC logs: Output handler fail, err:%v\n",err.Error())
+					fmt.Printf("ATC logs: Output handler fail, err:%v\n", err.Error())
 				}
 			}
 		}
@@ -174,7 +174,7 @@ func (l *AtcLogger) Fatal(format string, v ...interface{}) {
 // Defaultlogs is the default ServeMux used by Serve.
 var defaultlogs = NewLogger(10000)
 
-func SetLogger(adapterName string, configs ...string){
+func SetLogger(adapterName string, configs ...string) {
 	defaultlogs.SetLogger(adapterName, configs...)
 }
 
@@ -182,30 +182,30 @@ func SetLevel(level int) {
 	defaultlogs.SetLevel(level)
 }
 
-func Trace(format string, v ...interface{}){
+func Trace(format string, v ...interface{}) {
 	defaultlogs.Trace(format, v...)
 }
 
-func Debug(format string, v ...interface{}){
+func Debug(format string, v ...interface{}) {
 	defaultlogs.Debug(format, v...)
 }
 
-func Info(format string, v ...interface{}){
+func Info(format string, v ...interface{}) {
 	defaultlogs.Info(format, v...)
 }
 
-func Notice(format string, v ...interface{}){
+func Notice(format string, v ...interface{}) {
 	defaultlogs.Notice(format, v...)
 }
 
-func Warn(format string, v ...interface{}){
+func Warn(format string, v ...interface{}) {
 	defaultlogs.Warn(format, v...)
 }
 
-func Error(format string, v ...interface{}){
+func Error(format string, v ...interface{}) {
 	defaultlogs.Error(format, v...)
 }
 
-func Fatal(format string, v ...interface{}){
+func Fatal(format string, v ...interface{}) {
 	defaultlogs.Fatal(format, v...)
 }
