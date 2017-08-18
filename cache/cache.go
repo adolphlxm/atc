@@ -6,7 +6,7 @@ import (
 )
 
 type Cache interface {
-	Get(key string) interface{}
+	Get(key string) ([]byte, error)
 	Put(key string, val interface{}, timeout time.Duration) error
 	Delete(key string) error
 	FlushAll() error
@@ -30,7 +30,9 @@ func Register(name string, adapter CacheFunc) {
 
 func NewCache(adapterName, config string) (Cache, error) {
 	if handler, ok := adapters[adapterName]; ok {
-		return handler(), nil
+		adapter := handler()
+		err := adapter.New(config)
+		return adapter, err
 	} else {
 		return nil, fmt.Errorf("ATC cache: unknown adapter name %s failed.", adapterName)
 	}

@@ -20,22 +20,25 @@ func NewMemCache() cache.Cache {
 }
 
 // Get get value from memcache.
-func (c *Cache) Get(key string) interface{} {
+func (c *Cache) Get(key string) ([]byte, error) {
 	if c.conn == nil {
-		if err := c.connect(); err != nil {
-			return err
+		if err := c.connectInit(); err != nil {
+			return nil,err
 		}
 	}
-	if item, err := c.conn.Get(key); err == nil {
-		return item.Value
+
+	item, err := c.conn.Get(key)
+	if err != nil  {
+		return nil, err
 	}
-	return nil
+
+	return item.Value,nil
 }
 
 // Set set value to memcache. only support string.
 func (c *Cache) Put(key string, val interface{}, timeout time.Duration) error {
 	if c.conn == nil {
-		if err := c.connect(); err != nil {
+		if err := c.connectInit(); err != nil {
 			return err
 		}
 	}
@@ -50,7 +53,7 @@ func (c *Cache) Put(key string, val interface{}, timeout time.Duration) error {
 // Delete delete value in memcache.
 func (c *Cache) Delete(key string) error {
 	if c.conn == nil {
-		if err := c.connect(); err != nil {
+		if err := c.connectInit(); err != nil {
 			return err
 		}
 	}
@@ -60,27 +63,27 @@ func (c *Cache) Delete(key string) error {
 // FlushAll clear all cached in memcache.
 func (c *Cache) FlushAll() error {
 	if c.conn == nil {
-		if err := c.connect(); err != nil {
+		if err := c.connectInit(); err != nil {
 			return err
 		}
 	}
 	return c.conn.FlushAll()
 }
 
-// StartAndGC start memcache adapter.
+// New start memcache adapter.
 // if connecting error, return.
 func (c *Cache) New(config string) error {
 	c.conninfo = strings.Split(config, ";")
 	if c.conn == nil {
-		if err := c.connect(); err != nil {
+		if err := c.connectInit(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// connect to memcache and keep the connection.
-func (c *Cache) connect() error {
+// connectInit to memcache and keep the connection.
+func (c *Cache) connectInit() error {
 	c.conn = memcache.New(c.conninfo...)
 	return nil
 }
