@@ -28,7 +28,7 @@ const (
 	AdapterFile   = "file"
 )
 
-var LevelName [7]string = [7]string{"Trace", "Info", "Notice", "Warn", "Error", "Fatal", "Debug"}
+var LevelName [7]string = [7]string{"Fatal", "Error", "Warn", "Notice", "Info", "Trace", "Debug"}
 
 type LoggerFunc func() IAtcLogger
 
