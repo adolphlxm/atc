@@ -19,8 +19,12 @@ func NewMemCache() cache.Cache {
 	return &Cache{}
 }
 
+func (c *Cache) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
+	return
+}
+
 // Get get value from memcache.
-func (c *Cache) Get(key string) ([]byte, error) {
+func (c *Cache) Get(key string) (interface{}, error) {
 	if c.conn == nil {
 		if err := c.connectInit(); err != nil {
 			return nil,err
@@ -60,8 +64,30 @@ func (c *Cache) Delete(key string) error {
 	return c.conn.Delete(key)
 }
 
+// Incr increase counter.
+func (c *Cache) Increment(key string) error {
+	if c.conn == nil {
+		if err := c.connectInit(); err != nil {
+			return err
+		}
+	}
+	_, err := c.conn.Increment(key, 1)
+	return err
+}
+
+// Decr decrease counter.
+func (c *Cache) Decrement(key string) error {
+	if c.conn == nil {
+		if err := c.connectInit(); err != nil {
+			return err
+		}
+	}
+	_, err := c.conn.Decrement(key, 1)
+	return err
+}
+
 // FlushAll clear all cached in memcache.
-func (c *Cache) FlushAll() error {
+func (c *Cache) ClearAll() error {
 	if c.conn == nil {
 		if err := c.connectInit(); err != nil {
 			return err

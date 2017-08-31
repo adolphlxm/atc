@@ -9,6 +9,8 @@ import (
 	"errors"
 )
 
+const DefaultKey = "atcCacheRedis"
+
 type Cache struct {
 	p *redis.Pool
 	conninfo map[string]string
@@ -16,6 +18,66 @@ type Cache struct {
 
 func NewRedisCache() cache.Cache {
 	return &Cache{}
+}
+
+// actually do the redis cmds
+func (c *Cache) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
+	p := c.p.Get()
+	defer p.Close()
+
+	return p.Do(commandName, args...)
+}
+
+func (c *Cache) Get(key string) (reply interface{}, err error) {
+	reply, err = c.Do("GET", key)
+	return
+}
+
+func (c *Cache) Put(key string, val interface{}, timeout time.Duration) error {
+	var err error
+	if _, err = c.Do("SETEX", key, int64(timeout/time.Second), val); err != nil {
+		return err
+	}
+
+	 _, err = c.Do("HSET", DefaultKey, key)
+	return err
+}
+
+func (c *Cache) Delete(key string) error {
+	var err error
+	if _, err = c.Do("DEL", key); err != nil {
+		return err
+	}
+	_, err = c.Do("HDEL", DefaultKey, key)
+	return err
+}
+
+// Incr increase counter in redis.
+func (c *Cache) Increment(key string) error {
+	_, err := redis.Bool(c.Do("INCRBY", key, 1))
+	return err
+}
+
+// Decr decrease counter in redis.
+func (c *Cache) Decrement(key string) error {
+	_, err := redis.Bool(c.Do("INCRBY", key, -1))
+	return err
+}
+
+// FlushAll clear all cached in memcache.
+func (c *Cache) ClearAll() error {
+	cacheKeys, err := redis.Strings(c.Do("HKEYS", DefaultKey))
+	if err != nil {
+		return err
+	}
+	for _, key := range cacheKeys{
+		if _, err = c.Do("DEL",key); err != nil {
+			return err
+		}
+	}
+
+	_, err = c.Do("DEL", DefaultKey)
+	return err
 }
 
 // StartAndGC start memcache adapter.
@@ -27,14 +89,15 @@ func (c *Cache) New(config string) error {
 	}
 
 	if c.p == nil {
-		if err := c.connect(); err != nil {
+		if err := c.connectInit(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (c *Cache) connect() error {
+
+func (c *Cache) connectInit() error {
 	maxidle,_ := strconv.Atoi(c.conninfo["maxidle"])
 	maxactive, _ := strconv.Atoi(c.conninfo["maxactive"])
 	idletimeout, _ := strconv.Atoi(c.conninfo["idletimeout"])
@@ -70,4 +133,8 @@ func (c *Cache) connect() error {
 	}
 
 	return nil
+}
+
+func init() {
+	cache.Register("redis", NewRedisCache)
 }

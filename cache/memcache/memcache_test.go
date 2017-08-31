@@ -22,7 +22,7 @@ func TestNewMemCache(t *testing.T) {
 		t.Errorf("Memcache Get err:%v",err.Error())
 	}
 
-	if string(v) != "atc framework" {
+	if string(v.([]byte)) != "atc framework" {
 		t.Errorf("Memcache Get value error.")
 	}
 
