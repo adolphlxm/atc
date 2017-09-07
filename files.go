@@ -14,7 +14,7 @@ var errNotStaticRequest = errors.New("request not a static file request")
 // frontStaticRouter is the default static file handler - this is the last line of handlers
 func frontStaticRouter(c *context.Context) error {
 	if c.Method() != "GET" && c.Method() != "HEAD" {
-		return nil
+		return errNotStaticRequest
 	}
 
 	var isFront bool
