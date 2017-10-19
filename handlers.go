@@ -187,11 +187,18 @@ func (h *Handler) Send() error {
 }
 
 // JSON writes json to response body.
-func (h *Handler) JSON() error {
+func (h *Handler) JSON(data ...interface{}) error {
+	var err error
+
 	if Aconfig.FrontHost != "" {
 		h.Ctx.ResponseHeader("Access-Control-Allow-Origin", Aconfig.FrontHost)
 	}
-	err := h.Ctx.SaveJSON(h.Ctx.Data())
+
+	if len(data) > 0 {
+		err = h.Ctx.SaveJSON(data[0])
+	} else {
+		err = h.Ctx.SaveJSON(h.Ctx.Data())
+	}
 	if err != nil {
 		h.Error406(406)
 	}

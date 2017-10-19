@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"code.google.com/p/go.net/websocket"
+	"reflect"
 )
 
 var (
@@ -47,6 +48,8 @@ type Context struct {
 
 	// The current Conn represents a WebSocket connection.
 	WS *websocket.Conn
+
+	RunHandler reflect.Type
 
 	ReqType RequestType
 
@@ -268,8 +271,16 @@ func (ctx *Context) SetData(k string, v interface{}) {
 	ctx.data[k] = v
 }
 
+// Set saves data for this request
+func (ctx *Context) SetDatas(data map[string]interface{}) {
+	if ctx.data == nil {
+		ctx.data = make(map[string]interface{})
+	}
+	ctx.data = data
+}
+
 // JSON
-func (ctx *Context) SaveJSON(data map[string]interface{}) error {
+func (ctx *Context) SaveJSON(data interface{}) error {
 	var (
 		err     error
 		content []byte

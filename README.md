@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.7.0 (Beta 2017-08-18)
+当前版本: 0.7.5 (Beta 2017-10-18)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
@@ -240,16 +240,15 @@ func init() {
 * 2017.8
     - 增加cache缓存模块
     - 支持memcache
+* 2017.10
+    - 优化路由，Context struct增加`RunHandler`字段，便于在REST中获取和过滤运行Handler
+    - 优化JSON输出，变更前仅支持 this.Ctx.SetDatas( map[string]interface{}) -> this.JSON() ，变更后兼容之前使用方式同时支持 this.JSON(interface{})
     
 ## 即将支持特性(待定稿)
 
-* 自动生成项目
-* HTTPS
-* POST附件上传/压缩等
+* HTTPS / POST附件上传压缩
+* gRPC
 * 服务注册与发现模块
-
-文档陆续更新中...
-DEMO更新中...
 
 # LICENSE
 

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	//"path"
+	"strings"
 )
 
 type TestHandler struct {
@@ -17,6 +18,21 @@ type TestHandler struct {
 
 func (c *TestHandler) Get() {
 	c.Ctx.SetData("code", 200)
+	c.JSON()
+}
+
+func (c *TestHandler) Post() {
+	a1 := c.Ctx.Query("a")
+	b1 := c.Ctx.Query("b")
+	c1 := c.Ctx.Query("c")
+	if a1 != "1" || b1!= "2" || c1 != "3"{
+		c.Error(406,1000).Message("Post receive parameters failure.")
+		return
+	}
+	c.Ctx.SetData("code", "200")
+	c.Ctx.SetData("a",a1)
+	c.Ctx.SetData("b",b1)
+	c.Ctx.SetData("c",c1)
 	c.JSON()
 }
 
@@ -35,6 +51,29 @@ func TestHttpGet(t *testing.T) {
 	if data["code"] != 200 {
 		t.Errorf("url param set to [%v];", data)
 	}
+}
+
+func TestHttpPost(t *testing.T) {
+	// A GET request
+	r, _ := http.NewRequest("POST", "/V1/user/test", strings.NewReader("a=1&b=2&c=3"))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	//r.Header.Set("Content-Type", "text/xml")
+	w := httptest.NewRecorder()
+
+	// A GET response
+	data := make(map[string]string)
+	handler, _ := NewHandlerRouter()
+	handler.AddRouter("/V1/user", &TestHandler{})
+	handler.ServeHTTP(w, r)
+	body := w.Body.Bytes()
+	json.Unmarshal(body, &data)
+	if data["code"] != "200" {
+		t.Errorf("url param set to [%v];", data)
+	}
+	if data["a"] != "1" || data["b"] != "2" || data["c"] != "3" {
+		t.Errorf("url param post receive [%v]", data)
+	}
+
 }
 
 //func TestRouteRegexp(t *testing.T) {

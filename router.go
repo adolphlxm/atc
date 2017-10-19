@@ -145,12 +145,6 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.findFilter(BEFORE_ROUTE, requestPath, ctx)
-	// Exit handler
-	if ctx.GetStatus() != http.StatusOK {
-		return
-	}
-
 	if ctx.IsWebsocket() {
 		// ServeHTTP implements the http.Handler interface for a WebSocket
 		websocket.Handler(func(ws *websocket.Conn) {
@@ -177,11 +171,6 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *HandlerRouter) ExecuteHandler(method, requestPath string, c *Handler) {
 	defer h.recoverPanic(c.Ctx)
 
-	h.findFilter(BEFORE_ROUTE, requestPath, c.Ctx)
-	// Exit handler
-	if c.Ctx.GetStatus() != http.StatusOK {
-		return
-	}
 	h.findRoute(method, requestPath, c.Ctx)
 	// Exit handler
 	if c.Ctx.GetStatus() != http.StatusOK {
@@ -204,56 +193,120 @@ func (h *HandlerRouter) recoverPanic(c *context.Context) {
 // finds the matching route given a cleaned path
 func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context) {
 	error := NewError(c)
-	for _, r := range h.routers {
-		if r.MatchPath(requestPath) {
-			// Loading controller handler before the filter
-			// If the HTTP status code is not 200, stop running,
-			// apply to websocket.
-			h.findFilter(BEFORE_HANDLER, requestPath, c)
-			// Exit handler
-			if c.GetStatus() != http.StatusOK {
-				return
-			}
-			switch c.ReqType {
-			case context.RPC_HTTP:
-				c.SetParams(r.MatchParams(requestPath))
-			}
 
-			vc := reflect.New(r.HandlerType)
-			execController, ok := vc.Interface().(HandlerInterface)
-			if !ok {
-				error.Code(500, 500)
-			}
+	r := h.matchRouter(requestPath)
+	if r != nil {
+		c.RunHandler = r.HandlerType
+	}
 
-			execController.Init(c)
-			switch method {
-			case "GET":
-				execController.Get()
-			case "POST":
-				execController.Post()
-			case "DELETE":
-				execController.Delete()
-			case "PUT":
-				execController.Put()
-			case "PATCH":
-				execController.Patch()
-			case "HEAD":
-				execController.Head()
-			case "OPTIONS":
-				execController.Options()
-			case "WS":
-				execController.Websocket()
-			default:
-				execController.Get()
-			}
+	h.findFilter(BEFORE_ROUTE, requestPath, c)
+	// Exit handler
+	if c.GetStatus() != http.StatusOK {
+		return
+	}
 
+	if r != nil {
+		// Loading controller handler before the filter
+		// If the HTTP status code is not 200, stop running,
+		// apply to websocket.
+		h.findFilter(BEFORE_HANDLER, requestPath, c)
+		// Exit handler
+		if c.GetStatus() != http.StatusOK {
 			return
 		}
+		switch c.ReqType {
+		case context.RPC_HTTP:
+			c.SetParams(r.MatchParams(requestPath))
+		}
+
+		vc := reflect.New(r.HandlerType)
+		execController, ok := vc.Interface().(HandlerInterface)
+		if !ok {
+			error.Code(500, 500)
+		}
+
+		execController.Init(c)
+		switch method {
+		case "GET":
+			execController.Get()
+		case "POST":
+			execController.Post()
+		case "DELETE":
+			execController.Delete()
+		case "PUT":
+			execController.Put()
+		case "PATCH":
+			execController.Patch()
+		case "HEAD":
+			execController.Head()
+		case "OPTIONS":
+			execController.Options()
+		case "WS":
+			execController.Websocket()
+		default:
+			execController.Get()
+		}
 	}
+
+	//for _, r := range h.routers {
+	//	if r.MatchPath(requestPath) {
+	//		// Loading controller handler before the filter
+	//		// If the HTTP status code is not 200, stop running,
+	//		// apply to websocket.
+	//		h.findFilter(BEFORE_HANDLER, requestPath, c)
+	//		// Exit handler
+	//		if c.GetStatus() != http.StatusOK {
+	//			return
+	//		}
+	//		switch c.ReqType {
+	//		case context.RPC_HTTP:
+	//			c.SetParams(r.MatchParams(requestPath))
+	//		}
+	//
+	//		vc := reflect.New(r.HandlerType)
+	//		execController, ok := vc.Interface().(HandlerInterface)
+	//		if !ok {
+	//			error.Code(500, 500)
+	//		}
+	//
+	//		execController.Init(c)
+	//		switch method {
+	//		case "GET":
+	//			execController.Get()
+	//		case "POST":
+	//			execController.Post()
+	//		case "DELETE":
+	//			execController.Delete()
+	//		case "PUT":
+	//			execController.Put()
+	//		case "PATCH":
+	//			execController.Patch()
+	//		case "HEAD":
+	//			execController.Head()
+	//		case "OPTIONS":
+	//			execController.Options()
+	//		case "WS":
+	//			execController.Websocket()
+	//		default:
+	//			execController.Get()
+	//		}
+	//
+	//		return
+	//	}
+	//}
 
 	error.Code(404, 404)
 
 	return
+}
+
+func (h *HandlerRouter) matchRouter(requestPath string) *Router {
+	for _, r := range h.routers {
+		if r.MatchPath(requestPath) {
+			return r
+		}
+	}
+	return nil
 }
 
 // finds the matching filter given a cleaned path
