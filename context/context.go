@@ -163,6 +163,38 @@ func (ctx *Context) Query(key string) string {
 	return ctx.Request.Form.Get(key)
 }
 
+// Query returns input data items []string by a given []string.
+func (ctx *Context) QueryValues(key string) []string{
+	if err := ctx.parseForm(); err != nil {
+		return []string{}
+	}
+	if vs := ctx.Request.PostForm[key]; len(vs) > 1 {
+		return vs
+	}
+	return []string{}
+}
+
+//func (ctx *Context) QueryMap(key string) interface{} {
+//	vs := make(map[string]interface{},0)
+//
+//	if err := ctx.parseForm(); err != nil {
+//		return vs
+//	}
+//	regexpC := regexp.MustCompile( `(\[[a-zA-Z0-9]+\])`)
+//	for k, v := range ctx.Request.PostForm {
+//		if match := regexpC.FindAllStringSubmatch(k,-1); len(match) > 0 {
+//			for _,val := range match {
+//				fmt.Println(val)
+//			}
+//			fmt.Println("===")
+//			fmt.Println(match)
+//			fmt.Println("+++")
+//			fmt.Println(v)
+//		}
+//	}
+//	return vs
+//}
+
 func (ctx *Context) Param(key string) string {
 	if ctx.params == nil {
 		ctx.params = make(map[string]string)

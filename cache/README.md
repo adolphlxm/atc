@@ -52,7 +52,31 @@ func main() {
     mem.Put("atc","act framework", 10 * time.Second)
     mem.Get("atc")
     mem.Delete("atc")
-    mem.FlushAll()
+    mem.ClearAll()
+    ...
+}
+
+```
+
+## Redis使用
+```go
+package main
+
+import (
+    "github.com/adolphlxm/atc/cache"
+)
+
+func main() {
+
+    red, err := cache.NewCache("redis",`{"addr":"127.0.0.1:6379","maxidle":"2","maxactive":"2","idletimeout":"5"}`)
+    if err != nil {
+
+    }
+    red.Do("RPUSH", key, "data")
+    red.Put("atc","act framework", 10 * time.Second)
+    red.Get("atc")
+    red.Delete("atc")
+    red.ClearAll()
     ...
 }
 

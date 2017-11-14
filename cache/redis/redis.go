@@ -39,7 +39,7 @@ func (c *Cache) Put(key string, val interface{}, timeout time.Duration) error {
 		return err
 	}
 
-	 _, err = c.Do("HSET", DefaultKey, key)
+	 _, err = c.Do("HSET", c.conninfo["key"], key, true)
 	return err
 }
 
@@ -48,7 +48,7 @@ func (c *Cache) Delete(key string) error {
 	if _, err = c.Do("DEL", key); err != nil {
 		return err
 	}
-	_, err = c.Do("HDEL", DefaultKey, key)
+	_, err = c.Do("HDEL", c.conninfo["key"], key, true)
 	return err
 }
 
@@ -66,7 +66,7 @@ func (c *Cache) Decrement(key string) error {
 
 // FlushAll clear all cached in memcache.
 func (c *Cache) ClearAll() error {
-	cacheKeys, err := redis.Strings(c.Do("HKEYS", DefaultKey))
+	cacheKeys, err := redis.Strings(c.Do("HKEYS", c.conninfo["key"]))
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (c *Cache) ClearAll() error {
 		}
 	}
 
-	_, err = c.Do("DEL", DefaultKey)
+	_, err = c.Do("DEL", c.conninfo["key"])
 	return err
 }
 
@@ -104,6 +104,9 @@ func (c *Cache) connectInit() error {
 
 	if c.conninfo["addr"] == "" {
 		return errors.New("Redis addr is empty.")
+	}
+	if c.conninfo["key"] == "" {
+		c.conninfo["key"] = DefaultKey
 	}
 
 	c.p = &redis.Pool{
