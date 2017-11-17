@@ -20,10 +20,9 @@ func TestStdout(t *testing.T) {
 	time.Sleep(2 * time.Second)
 }
 
-
-func TestFile(t *testing.T){
+func TestFile(t *testing.T) {
 	l := NewLogger(10000)
-	l.SetHandler("file",`{"filename":"test.log","perm":"0660"}`)
+	l.SetHandler("file", `{"filename":"test.log","perm":"0660"}`)
 	l.SetLevel(LevelDebug)
 	testAllLevel(l)
 	time.Sleep(1 * time.Second)

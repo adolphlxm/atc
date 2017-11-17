@@ -20,8 +20,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 	"path/filepath"
+	"runtime"
 
 	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/rpc/thrift"
@@ -32,18 +32,18 @@ var ThriftRPC thrift.Thrift
 func init() {
 	// Parsing configuration environment
 	runMode := flag.String("m", "dev", "Use -m <config mode>")
-	configFile := flag.String("c","../conf/app.ini","use -c <config file>")
+	configFile := flag.String("c", "../conf/app.ini", "use -c <config file>")
 	version := flag.Bool("v", false, "Use -v <current version>")
 	flag.Parse()
 
 	// Show version
 	if *version {
-		fmt.Println("ATC version",VERSION, runtime.GOOS +"/" + runtime.GOARCH)
+		fmt.Println("ATC version", VERSION, runtime.GOOS+"/"+runtime.GOARCH)
 		os.Exit(0)
 	}
 
 	// Initialize config
-	err := ParseConfig(*configFile,*runMode)
+	err := ParseConfig(*configFile, *runMode)
 	if err != nil {
 		workPath, _ := os.Getwd()
 		workPath, _ = filepath.Abs(workPath)
@@ -51,7 +51,7 @@ func init() {
 		panic(err)
 	}
 
-	logs.SetLogger(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file","")+`", "perm":"`+AppConfig.DefaultString("log.perm","")+`"}`)
+	logs.SetLogger(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file", "")+`", "perm":"`+AppConfig.DefaultString("log.perm", "")+`"}`)
 	if Aconfig.Debug {
 		logs.SetLevel(logs.LevelDebug)
 	} else {
@@ -61,7 +61,7 @@ func init() {
 	// Initializes error
 	ErrorCode = NewErrorMap()
 	// In the conf/error. Ini file parsing error code
-	err = ErrorCode.parse(AppConfig.DefaultString("error.file","../conf/error.ini"))
+	err = ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
 	if err != nil {
 		logs.Error("Error file loading err:%v", err.Error())
 	}

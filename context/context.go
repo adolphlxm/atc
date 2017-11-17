@@ -164,7 +164,7 @@ func (ctx *Context) Query(key string) string {
 }
 
 // Query returns input data items []string by a given []string.
-func (ctx *Context) QueryValues(key string) []string{
+func (ctx *Context) QueryValues(key string) []string {
 	if err := ctx.parseForm(); err != nil {
 		return []string{}
 	}

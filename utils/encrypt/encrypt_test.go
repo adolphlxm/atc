@@ -1,9 +1,9 @@
 package encrypt
 
 import (
-	"testing"
-	"fmt"
 	"encoding/base64"
+	"fmt"
+	"testing"
 )
 
 func TestRsa(t *testing.T) {
@@ -30,15 +30,15 @@ Vk2UD8ssCmYcY54EDQJAeOxoNVYi+zjpLHveQSIK/qrOi5yDmK/Seqy4FsfZDBaN
 EiC7iaRlDHqdW/P0N4C9TkGli0uwrwOBdYBDGfe2AA==
 -----END RSA PRIVATE KEY-----`)
 	origData := []byte("Adolph.liu for atc")
-	ciphertext, err := RsaEncrypt(origData,publicKey)
+	ciphertext, err := RsaEncrypt(origData, publicKey)
 	if err != nil {
-		t.Errorf("RsaEncrypt err:%v",err.Error())
+		t.Errorf("RsaEncrypt err:%v", err.Error())
 	}
 	fmt.Println("Rsa encrypt base64 :", base64.StdEncoding.EncodeToString(ciphertext))
 
 	data, err := RsaDecrypt(ciphertext, privateKey)
 	if err != nil {
-		t.Errorf("RsaDecrypt err:%v",err.Error())
+		t.Errorf("RsaDecrypt err:%v", err.Error())
 	}
 	fmt.Println("Rsa decrypt :", string(data))
 }

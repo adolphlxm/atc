@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 	"github.com/adolphlxm/atc/rpc/thrift/gen/atcrpc"
 	"github.com/adolphlxm/atc/rpc/thrift/gen/micro"
+	"github.com/adolphlxm/atc/rpc/thrift/lib/thrift"
 )
 
 var (
@@ -41,7 +41,6 @@ func TestThriftRPC(t *testing.T) {
 func TestRemoteThriftRPC(t *testing.T) {
 	_remoteClient(t, "binary", "framed")
 }
-
 
 // Remote thrift pool client testing.
 func TestRemoteThriftPoolThriftRPC(t *testing.T) {
@@ -109,7 +108,6 @@ func _localClient(t *testing.T, protocolT, transportT string) {
 	case "simplejson":
 		protocol = thrift.NewTSimpleJSONProtocol(useTransport)
 	}
-
 
 	if err := transport.Open(); err != nil {
 		t.Fatalf("[thrift client] Error opening socket to %s,err:", addr, err)
@@ -200,15 +198,15 @@ func _remoteClient(t *testing.T, protocolT, transportT string) {
 /**** Remote pool client testing ****/
 /************************************/
 func _remoteThriftPoolClient(t *testing.T, protocolT, transportT string) {
-	pool := NewThriftPool(net.JoinHostPort("127.0.0.1", "9090"),10,10,10)
+	pool := NewThriftPool(net.JoinHostPort("127.0.0.1", "9090"), 10, 10, 10)
 	pool.SetFactory(protocolT, transportT)
 
 	// Client calls
-	for i:=0;i<11;i++ {
-		conn,err := pool.Get()
+	for i := 0; i < 11; i++ {
+		conn, err := pool.Get()
 		if err != nil {
 
-			t.Errorf("[thrift client] Error client pool err:%s",err.Error())
+			t.Errorf("[thrift client] Error client pool err:%s", err.Error())
 			return
 		}
 		mulProtocol := conn.NewTmultiplexedProtocol("user")

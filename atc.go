@@ -23,8 +23,8 @@ import (
 	"os/signal"
 	"path"
 	"strings"
-	"time"
 	"syscall"
+	"time"
 
 	"github.com/adolphlxm/atc/logs"
 )
@@ -73,9 +73,9 @@ func stop() {
 
 	for {
 		sig := <-sigChan
-		logs.Trace("%v",sig)
+		logs.Trace("%v", sig)
 		switch sig {
-		case syscall.SIGTERM,syscall.SIGINT:
+		case syscall.SIGTERM, syscall.SIGINT:
 			os.Exit(1)
 		case syscall.SIGQUIT:
 			logs.Trace("Shutting down start...")

@@ -19,7 +19,7 @@ type OrmConfig struct {
 	LogLevel string `json:"loglevel"`
 }
 
-func RunOrms() (dbs orm.Orm){
+func RunOrms() (dbs orm.Orm) {
 	var (
 		maxidleconns int
 		maxopenconns int

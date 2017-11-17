@@ -10,7 +10,6 @@ type SignalFunc func() Signal
 
 type Signal interface {
 	RegisterSignal(chan<- os.Signal) error
-
 }
 
 var adapters = make(map[string]SignalFunc)
@@ -41,7 +40,7 @@ func Register(adapterName string, adapter SignalFunc) {
 	adapters[adapterName] = adapter
 }
 
-func NewSignal(adapterName string) (Signal, error){
+func NewSignal(adapterName string) (Signal, error) {
 	if handler, ok := adapters[adapterName]; ok {
 		return handler(), nil
 	} else {
@@ -49,7 +48,7 @@ func NewSignal(adapterName string) (Signal, error){
 	}
 }
 
-func Notify(){
+func Notify() {
 	// Signal
 	//	1. TERM,INT 立即终止
 	//	2. QUIT 平滑终止
@@ -65,7 +64,6 @@ func Notify(){
 //
 //	return fmt.Errorf("Signal '%v' is not supported.", signal)
 //}
-
 
 //func Notoify() {
 //	sig := NewSignal()

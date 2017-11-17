@@ -13,7 +13,7 @@ type File struct {
 
 	Filename string `json:"filename"`
 
-	Perm string `json:"perm"`
+	Perm  string `json:"perm"`
 	fPerm os.FileMode
 
 	suffix string
@@ -21,7 +21,7 @@ type File struct {
 
 func NewFileLog() IAtcLogger {
 	file := &File{
-		fPerm:   0660,
+		fPerm:  0660,
 		suffix: ".log",
 	}
 	return file

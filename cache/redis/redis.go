@@ -1,18 +1,18 @@
 package redis
 
 import (
-	"github.com/garyburd/redigo/redis"
-	"github.com/adolphlxm/atc/cache"
-	"time"
-	"strconv"
 	"encoding/json"
 	"errors"
+	"github.com/adolphlxm/atc/cache"
+	"github.com/garyburd/redigo/redis"
+	"strconv"
+	"time"
 )
 
 const DefaultKey = "atcCacheRedis"
 
 type Cache struct {
-	p *redis.Pool
+	p        *redis.Pool
 	conninfo map[string]string
 }
 
@@ -39,7 +39,7 @@ func (c *Cache) Put(key string, val interface{}, timeout time.Duration) error {
 		return err
 	}
 
-	 _, err = c.Do("HSET", c.conninfo["key"], key, true)
+	_, err = c.Do("HSET", c.conninfo["key"], key, true)
 	return err
 }
 
@@ -70,8 +70,8 @@ func (c *Cache) ClearAll() error {
 	if err != nil {
 		return err
 	}
-	for _, key := range cacheKeys{
-		if _, err = c.Do("DEL",key); err != nil {
+	for _, key := range cacheKeys {
+		if _, err = c.Do("DEL", key); err != nil {
 			return err
 		}
 	}
@@ -96,9 +96,8 @@ func (c *Cache) New(config string) error {
 	return nil
 }
 
-
 func (c *Cache) connectInit() error {
-	maxidle,_ := strconv.Atoi(c.conninfo["maxidle"])
+	maxidle, _ := strconv.Atoi(c.conninfo["maxidle"])
 	maxactive, _ := strconv.Atoi(c.conninfo["maxactive"])
 	idletimeout, _ := strconv.Atoi(c.conninfo["idletimeout"])
 
@@ -110,7 +109,7 @@ func (c *Cache) connectInit() error {
 	}
 
 	c.p = &redis.Pool{
-		MaxIdle:maxidle,
+		MaxIdle:     maxidle,
 		MaxActive:   maxactive,
 		IdleTimeout: time.Duration(idletimeout) * time.Second,
 		Dial: func() (redis.Conn, error) {

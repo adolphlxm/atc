@@ -17,11 +17,11 @@ func TestPool_Get(t *testing.T) {
 		MaxIdle:     8,
 		IdleTimeout: 1,
 	}
-	for i := 0; i < 12; i ++ {
+	for i := 0; i < 12; i++ {
 		_, err := pool.Get()
 		if err != nil {
 			t.Error(err)
 		}
-		pool.Put(nil,false)
+		pool.Put(nil, false)
 	}
 }

@@ -26,9 +26,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/adolphlxm/atc/logs"
 	"code.google.com/p/go.net/websocket"
 	"github.com/adolphlxm/atc/context"
+	"github.com/adolphlxm/atc/logs"
 )
 
 type Location int

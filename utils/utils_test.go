@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestRandString(t *testing.T) {

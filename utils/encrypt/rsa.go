@@ -1,11 +1,11 @@
 package encrypt
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"crypto/x509"
-	"crypto/rsa"
-	"crypto/rand"
 )
 
 /************************************/
@@ -19,7 +19,7 @@ import (
 //	$ genrsa -out rsa_private_key.pem 2048 // 生成私钥
 //	$ pkcs8 -topk8 -inform PEM -in rsa_private_key.pem -outform PEM –nocrypt // 第二句命令：把RSA私钥转换成PKCS8格式。提示输入密码，密码为空（直接回车）就行；
 //	$ rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem // 生成公钥
-func RsaEncrypt(origData, publicKey []byte) ([]byte, error){
+func RsaEncrypt(origData, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		return nil, errors.New("public key error.")
@@ -34,10 +34,9 @@ func RsaEncrypt(origData, publicKey []byte) ([]byte, error){
 	return rsa.EncryptPKCS1v15(rand.Reader, pub, origData)
 }
 
-
 func RsaDecrypt(ciphertext, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
-	if block == nil  {
+	if block == nil {
 		return nil, errors.New("private key error.")
 	}
 	private, err := x509.ParsePKCS1PrivateKey(block.Bytes)

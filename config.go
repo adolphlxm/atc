@@ -31,7 +31,7 @@ type Config struct {
 	FrontDir       []string
 	FrontDirectory bool
 	FrontSuffix    string
-	FrontHost	   string
+	FrontHost      string
 
 	// Thrift
 	ThriftSupport       bool
@@ -81,9 +81,9 @@ func ParseConfig(confName, runmode string) error {
 		FrontDir:       []string{"index", "assets"},
 		FrontDirectory: false,
 		FrontSuffix:    "html",
-		FrontHost: "",
+		FrontHost:      "",
 
-		ThriftSupport:       true,
+		ThriftSupport:       false,
 		ThriftDebug:         false,
 		ThriftQTimeout:      300, // 5min
 		ThriftClientTimeout: 10,
