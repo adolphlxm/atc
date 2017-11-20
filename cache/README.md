@@ -7,7 +7,7 @@
     go get github.com/adolphlxm/atc/cache
    
 # 使用步骤
-##引入包
+## 引入包
     
     import(
         "github.com/adolphlxm/atc/cache"
@@ -15,7 +15,7 @@
     
 ## 接口
 ```go
-// Only user redis.
+    // Only user redis.
 	// Do sends a command to the server and returns the received reply.
 	Do(commandName string, args ...interface{}) (reply interface{}, err error)
 	// Get cached value by key.
@@ -36,6 +36,7 @@
 
 
 ## Redis使用
+
 config json 配置字段说明
 
 `{"addr":"127.0.0.1:6379","maxidle":"2","maxactive":"2","idletimeout":"5"}`
@@ -44,10 +45,41 @@ config json 配置字段说明
 * maxactive：最大连接数
 * idletimeout：空闲连接超时时间
 
+并提供了redis数据处理封装方法：
+
+```go
+func Strings(reply interface{}, err error) ([]string, error)
+
+func String(reply interface{}, err error) (string, error)
+
+func Int(reply interface{}, err error) (int, error)
+
+func Int64(reply interface{}, err error) (int64, error)
+
+func Uint64(reply interface{}, err error) (uint64, error)
+
+func Float64(reply interface{}, err error) (float64, error)
+
+func Bytes(reply interface{}, err error) ([]byte, error)
+
+func Bool(reply interface{}, err error) (bool, error)
+
+func Values(reply interface{}, err error) ([]interface{}, error)
+
+func Ints(reply interface{}, err error) ([]int, error)
+
+func StringMap(reply interface{}, err error) (map[string]string, error)
+
+func IntMap(reply interface{}, err error) (map[string]int, error)
+
+func Int64Map(reply interface{}, err error) (map[string]int64, error)
+```
+
 ```go
 package main
 
 import (
+    "github.com/adolphlxm/atc/cache/redis"
     "github.com/adolphlxm/atc/cache"
 )
 
@@ -63,6 +95,12 @@ func main() {
     red.Delete("atc")
     red.ClearAll()
     ...
+
+    // 数据处理
+    redis.Strings()
+    redis.String()
+    redis.Int()
+    ...
 }
 
 ```
@@ -73,6 +111,7 @@ func main() {
 package main
 
 import (
+    _ "github.com/adolphlxm/atc/cache/memcache"
     "github.com/adolphlxm/atc/cache"
 )
 
