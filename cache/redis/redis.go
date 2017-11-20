@@ -137,6 +137,69 @@ func (c *Cache) connectInit() error {
 	return nil
 }
 
+/************************************/
+/**********  Redis Reply  ***********/
+/************************************/
+func Strings(reply interface{}, err error) ([]string, error){
+	return redis.Strings(reply, err)
+}
+
+func String(reply interface{}, err error) (string, error){
+	return redis.String(reply, err)
+}
+// Int is a helper that converts a command reply to an integer. If err is not
+// equal to nil, then Int returns 0, err. Otherwise, Int converts the
+// reply to an int as follows:
+//
+//  Reply type    Result
+//  integer       int(reply), nil
+//  bulk string   parsed reply, nil
+//  nil           0, ErrNil
+//  other         0, error
+func Int(reply interface{}, err error) (int, error){
+	return redis.Int(reply, err)
+}
+
+func Int64(reply interface{}, err error) (int64, error){
+	return redis.Int64(reply, err)
+}
+
+func Uint64(reply interface{}, err error) (uint64, error){
+	return redis.Uint64(reply, err)
+}
+
+func Float64(reply interface{}, err error) (float64, error){
+	return redis.Float64(reply, err)
+}
+
+func Bytes(reply interface{}, err error) ([]byte, error){
+	return redis.Bytes(reply,err)
+}
+
+func Bool(reply interface{}, err error) (bool, error) {
+	return redis.Bool(reply, err)
+}
+
+func Values(reply interface{}, err error) ([]interface{}, error) {
+	return redis.Values(reply, err)
+}
+
+func Ints(reply interface{}, err error) ([]int, error){
+	return redis.Ints(reply, err)
+}
+
+func StringMap(reply interface{}, err error) (map[string]string, error){
+	return redis.StringMap(reply, err)
+}
+
+func IntMap(reply interface{}, err error) (map[string]int, error) {
+	return redis.IntMap(reply, err)
+}
+
+func Int64Map(reply interface{}, err error) (map[string]int64, error){
+	return redis.Int64Map(reply, err)
+}
+
 func init() {
 	cache.Register("redis", NewRedisCache)
 }
