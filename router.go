@@ -29,6 +29,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/adolphlxm/atc/context"
 	"github.com/adolphlxm/atc/logs"
+	"fmt"
 )
 
 type Location int
@@ -79,7 +80,7 @@ func (h *HandlerRouter) AddRouter(pattern string, c HandlerInterface) *Router {
 	}
 
 	prefixName := strings.ToLower(handlerName[0])
-	pattern = path.Join(pattern, prefixName, "?") + "id:([\\da-z]+)?"
+	pattern = path.Join(pattern, prefixName) + "/id:([\\da-z]+)?"
 
 	// Check the routing legal
 	for _, r := range h.routers {
@@ -248,53 +249,6 @@ func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context
 		}
 	}
 
-	//for _, r := range h.routers {
-	//	if r.MatchPath(requestPath) {
-	//		// Loading controller handler before the filter
-	//		// If the HTTP status code is not 200, stop running,
-	//		// apply to websocket.
-	//		h.findFilter(BEFORE_HANDLER, requestPath, c)
-	//		// Exit handler
-	//		if c.GetStatus() != http.StatusOK {
-	//			return
-	//		}
-	//		switch c.ReqType {
-	//		case context.RPC_HTTP:
-	//			c.SetParams(r.MatchParams(requestPath))
-	//		}
-	//
-	//		vc := reflect.New(r.HandlerType)
-	//		execController, ok := vc.Interface().(HandlerInterface)
-	//		if !ok {
-	//			error.Code(500, 500)
-	//		}
-	//
-	//		execController.Init(c)
-	//		switch method {
-	//		case "GET":
-	//			execController.Get()
-	//		case "POST":
-	//			execController.Post()
-	//		case "DELETE":
-	//			execController.Delete()
-	//		case "PUT":
-	//			execController.Put()
-	//		case "PATCH":
-	//			execController.Patch()
-	//		case "HEAD":
-	//			execController.Head()
-	//		case "OPTIONS":
-	//			execController.Options()
-	//		case "WS":
-	//			execController.Websocket()
-	//		default:
-	//			execController.Get()
-	//		}
-	//
-	//		return
-	//	}
-	//}
-
 	error.Code(404, 404)
 
 	return
@@ -368,6 +322,8 @@ func (r *Router) MatchPath(path string) bool {
 	if r.Pattern == path {
 		return true
 	} else if r.Regexp != nil {
+		fmt.Println(path)
+		fmt.Println(r.Regexp)
 		if r.Regexp.MatchString(path) {
 			return true
 		}
@@ -391,7 +347,6 @@ func (r *Router) MatchParams(path string) map[string]string {
 
 func (r *Router) regexpRouter() (err error) {
 	metaPattern := regexp.QuoteMeta(r.Pattern)
-
 	if metaPattern != r.Pattern {
 		keys := regexp.MustCompile(`[\\ba-z]+:`)
 		replacePattern := keys.ReplaceAllString(r.Pattern, "")

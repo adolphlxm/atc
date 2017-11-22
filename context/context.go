@@ -25,6 +25,7 @@ import (
 
 	"code.google.com/p/go.net/websocket"
 	"reflect"
+	"strconv"
 )
 
 var (
@@ -163,15 +164,68 @@ func (ctx *Context) Query(key string) string {
 	return ctx.Request.Form.Get(key)
 }
 
+func (ctx *Context) QueryInt(key string) int {
+	var int int
+	int, _ = strconv.Atoi(ctx.Query(key))
+	return int
+}
+
+func (ctx *Context) QueryInt64(key string) int64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Query(key))
+	return int64(int)
+}
+
+func (ctx *Context) QueryUint64(key string) uint64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Query(key))
+	return uint64(int)
+}
 // Query returns input data items []string by a given []string.
-func (ctx *Context) QueryValues(key string) []string {
+func (ctx *Context) QueryStrings(key string) []string {
+	var strings []string
 	if err := ctx.parseForm(); err != nil {
-		return []string{}
+		return strings
 	}
-	if vs := ctx.Request.PostForm[key]; len(vs) > 1 {
-		return vs
+	strings = ctx.Request.PostForm[key]
+	return strings
+}
+
+// Query returns input data items []string by a given []string.
+func (ctx *Context) QueryInts(key string) []int {
+	var ints []int
+	if strings := ctx.QueryStrings(key); len(strings) > 1 {
+		for _, val := range strings {
+			if int, err := strconv.Atoi(val); err == nil {
+				ints = append(ints, int)
+			}
+		}
 	}
-	return []string{}
+	return ints
+}
+
+func (ctx *Context) QueryInt64s(key string) []int64 {
+	var int64s []int64
+	if strings := ctx.QueryStrings(key); len(strings) > 1 {
+		for _, val := range strings {
+			if int, err := strconv.Atoi(val); err == nil {
+				int64s = append(int64s, int64(int))
+			}
+		}
+	}
+	return int64s
+}
+
+func (ctx *Context) QueryUint64s(key string) []uint64 {
+	var uint64s []uint64
+	if strings := ctx.QueryStrings(key); len(strings) > 1 {
+		for _, val := range strings {
+			if int, err := strconv.Atoi(val); err == nil {
+				uint64s = append(uint64s, uint64(int))
+			}
+		}
+	}
+	return uint64s
 }
 
 //func (ctx *Context) QueryMap(key string) interface{} {
