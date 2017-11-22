@@ -29,7 +29,6 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/adolphlxm/atc/context"
 	"github.com/adolphlxm/atc/logs"
-	"fmt"
 )
 
 type Location int
@@ -322,8 +321,6 @@ func (r *Router) MatchPath(path string) bool {
 	if r.Pattern == path {
 		return true
 	} else if r.Regexp != nil {
-		fmt.Println(path)
-		fmt.Println(r.Regexp)
 		if r.Regexp.MatchString(path) {
 			return true
 		}
@@ -337,9 +334,10 @@ func (r *Router) MatchParams(path string) map[string]string {
 		return params
 	}
 
-	regstr := r.Regexp.FindStringSubmatch(path)
-	for i, match := range regstr[1:] {
-		params[r.Params[i]] = match
+	if regstr := r.Regexp.FindStringSubmatch(path); len(regstr) > 0 {
+		for i, match := range regstr[1:] {
+			params[r.Params[i]] = match
+		}
 	}
 
 	return params
