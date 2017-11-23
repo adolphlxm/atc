@@ -29,6 +29,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 	"github.com/adolphlxm/atc/context"
 	"github.com/adolphlxm/atc/logs"
+	"fmt"
 )
 
 type Location int
@@ -195,9 +196,11 @@ func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context
 	error := NewError(c)
 
 	r := h.matchRouter(requestPath)
-	if r != nil {
-		c.RunHandler = r.HandlerType
+	if r == nil {
+		error.Code(404, 404).JSON()
+		return
 	}
+	c.RunHandler = r.HandlerType
 
 	h.findFilter(BEFORE_ROUTE, requestPath, c)
 	// Exit handler
@@ -222,7 +225,7 @@ func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context
 		vc := reflect.New(r.HandlerType)
 		execController, ok := vc.Interface().(HandlerInterface)
 		if !ok {
-			error.Code(500, 500)
+			error.Code(500, 500).JSON()
 		}
 
 		execController.Init(c)
@@ -247,13 +250,13 @@ func (h *HandlerRouter) findRoute(method, requestPath string, c *context.Context
 			execController.Get()
 		}
 	}
-
-	error.Code(404, 404)
-
-	return
 }
 
 func (h *HandlerRouter) matchRouter(requestPath string) *Router {
+	if requestPath == "" {
+		return nil
+	}
+
 	for _, r := range h.routers {
 		if r.MatchPath(requestPath) {
 			return r
@@ -317,10 +320,12 @@ func newRouter(pattern string, t reflect.Type) (r *Router, err error) {
 //}
 
 func (r *Router) MatchPath(path string) bool {
-	path += "/"
 	if r.Pattern == path {
 		return true
 	} else if r.Regexp != nil {
+		fmt.Println("=====")
+		fmt.Println(path)
+		fmt.Println(r)
 		if r.Regexp.MatchString(path) {
 			return true
 		}
@@ -359,8 +364,9 @@ func (r *Router) regexpRouter() (err error) {
 		exprPattern.WriteString(replacePattern)
 		//Compile parses a regular expression and returns, if successful
 		r.Regexp, err = regexp.Compile(exprPattern.String())
-		patternShort := strings.Split(replacePattern, "?")
+		patternShort := strings.Split(replacePattern, "/([")
 		r.Pattern = patternShort[0]
 	}
+	fmt.Println(r.Regexp.String())
 	return err
 }
