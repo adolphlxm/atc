@@ -74,6 +74,8 @@ func stop() {
 	for {
 		sig := <-sigChan
 		logs.Trace("%v", sig)
+		// TODO 发送信号
+		// TODO 等待回复(超时时间)
 		switch sig {
 		case syscall.SIGTERM, syscall.SIGINT:
 			os.Exit(1)
@@ -95,6 +97,8 @@ func stop() {
 		logs.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 		time.Sleep(1 * time.Millisecond)
 	}
+
+	// TODO
 }
 
 type RouterGroup struct {
