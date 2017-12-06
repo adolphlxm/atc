@@ -65,7 +65,8 @@ func NewHandlerRouter() (*HandlerRouter, error) {
 // AddRouter returns a point to the Router
 //
 // RESTful usage:
-// 	AddRouter("/V1/users",&UserController{})
+// 	AddRouter("/V1/user/{userid:[0-9]?}",&user.UserHandler{})
+// 	AddRouter("/V1/user/group",&user.GroupHandler{})
 func (h *HandlerRouter) AddRouter(pattern string, c HandlerInterface) *Router {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -73,14 +74,6 @@ func (h *HandlerRouter) AddRouter(pattern string, c HandlerInterface) *Router {
 	// Create a new route
 	reflectVal := reflect.ValueOf(c)
 	t := reflect.Indirect(reflectVal).Type()
-	// According to handler package routing.
-	handlerName := strings.Split(t.Name(), "Handler")
-	if len(handlerName) != 2 {
-		panic("ATC AddRouter: new router failed for " + t.Name() + ": invalid handler definition!")
-	}
-
-	prefixName := strings.ToLower(handlerName[0])
-	pattern = path.Join(pattern, prefixName) + "/id:([\\da-z]+)?"
 
 	// Check the routing legal
 	for _, r := range h.routers {
@@ -298,7 +291,6 @@ func newRouter(pattern string, t reflect.Type) (r *Router, err error) {
 	r = &Router{
 		HandlerType: t,
 		Pattern:     pattern,
-		//methods: []string{httpMethod},
 	}
 
 	//Check regexp
@@ -309,23 +301,10 @@ func newRouter(pattern string, t reflect.Type) (r *Router, err error) {
 	return r, nil
 }
 
-//func (r *Router) MatchMethod(method string) bool {
-//	for _, m := range r.methods {
-//		if m == method {
-//			return true
-//		}
-//	}
-//
-//	return false
-//}
-
 func (r *Router) MatchPath(path string) bool {
 	if r.Pattern == path {
 		return true
 	} else if r.Regexp != nil {
-		fmt.Println("=====")
-		fmt.Println(path)
-		fmt.Println(r)
 		if r.Regexp.MatchString(path) {
 			return true
 		}
@@ -344,29 +323,79 @@ func (r *Router) MatchParams(path string) map[string]string {
 			params[r.Params[i]] = match
 		}
 	}
-
 	return params
 }
 
 func (r *Router) regexpRouter() (err error) {
 	metaPattern := regexp.QuoteMeta(r.Pattern)
 	if metaPattern != r.Pattern {
-		keys := regexp.MustCompile(`[\\ba-z]+:`)
-		replacePattern := keys.ReplaceAllString(r.Pattern, "")
-		params := keys.FindAllString(r.Pattern, -1)
-		for _, k := range params {
-			sk := strings.SplitN(k, ":", 2)
-			r.Params = append(r.Params, sk[0])
-		}
 
 		//Create a buffer
 		exprPattern := bytes.NewBufferString("^")
-		exprPattern.WriteString(replacePattern)
+		defaultPattern := "[^/]+"
+		idxs, err := braceIndices(r.Pattern)
+		if err != nil {
+			return err
+		}
+
+		var end int
+		for i := 0; i < len(idxs); i += 2 {
+			raw := regexp.QuoteMeta(r.Pattern[end:idxs[i]])
+			end = idxs[i+1]
+			parts := strings.SplitN(r.Pattern[idxs[i]+1:end-1], ":", 2)
+			patt := defaultPattern
+			if len(parts) == 2 {
+				patt = parts[1]
+			}
+			if patt == "" {
+				return fmt.Errorf("router: missing name or pattern in %q",
+					r.Pattern[idxs[i]:end])
+			}
+
+			if patt[len(patt)-1:] == "?" {
+				switch path.Clean(raw) {
+				case "/":
+					raw = "([/]?)"
+				default:
+					raw = path.Clean(raw) + "([/]?)"
+				}
+				r.Params = append(r.Params, "")
+			}
+
+			// Build the regexp parameters.
+			r.Params = append(r.Params, parts[0])
+
+			// Build the regexp pattern.
+			fmt.Fprintf(exprPattern, "%s(%s)", raw, patt)
+		}
+
+		exprPattern.WriteByte('$')
+
 		//Compile parses a regular expression and returns, if successful
 		r.Regexp, err = regexp.Compile(exprPattern.String())
-		patternShort := strings.Split(replacePattern, "/([")
-		r.Pattern = patternShort[0]
 	}
-	fmt.Println(r.Regexp.String())
 	return err
+}
+
+func braceIndices(s string) ([]int, error) {
+	var level, idx int
+	var idxs []int
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '{':
+			if level++; level == 1 {
+				idx = i
+			}
+		case '}':
+			if level--; level == 0 {
+				idxs = append(idxs, idx, i+1)
+			} else if level < 0 {
+				return nil, fmt.Errorf("router: unbalanced braces in %q", s)
+			}
+		}
+	}
+	if level != 0 {
+		return nil, fmt.Errorf("router: unbalanced braces in %q", s)
+	}
+	return idxs, nil
 }
