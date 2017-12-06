@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.7.7 (Beta 2017-11-22)
+当前版本: 0.8.0 (Beta 2017-12-6)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
@@ -88,7 +88,7 @@ func init(){
         v1 := atc.Route.Group("V1")
         {
                 // V1版本路由
-                v1.AddRouter("users",&LoginHandler{})
+                v1.AddRouter("users.login",&LoginHandler{})
                 ...
         }
         V2 := atc.Route.Group("V2")
@@ -100,7 +100,7 @@ func init(){
                 //      3. AFTER                          //执行完所有逻辑后
                 v2.AddFilter(atc.BEFORE_ROUTE,"users.*",AfterLogin)
                 // V2版本路由
-                v2.AddRouter("users",&LoginHandler{})
+                v2.AddRouter("users.login",&LoginHandler{})
                 ...
         }
 }
@@ -115,6 +115,46 @@ func init(){
     * 先执行`BFORE_ROUTE`过滤器, 未通过则得到一个json返回。
     * 通过过滤器后 加载 `Get()`, 将会得到一个json返回。
 
+## 路由
+
+### 固定路由
+
+固定路由也就是全匹配的路由，如下所示：
+
+`注：ATC路由模块之间请使用"."来区分，而不是"/"`
+```router
+// 匹配根目录
+atc.AddRouter(".", &index.MainHandler{})
+
+// 匹配 /api
+atc.AddRouter("api",&api.IndexHandler{})
+
+// 匹配 /api/list
+atc.AddRouter("api.list", &api.ListHandler{})
+
+// 匹配 /api/group
+atc.AddRouter("api.group", &api.GroupHandler{})
+```
+
+如上所示的固定路由就是我们最常用的路由方式，根据用户请求方法不同请求控制器中对应的方法，典型的 RESTful 方式。
+
+### 正则路由
+
+ 为了更加方便的路由设置，ATC 支持多种方式的路由：
+
+```router
+// 匹配 /api/123 , 同时可匹配 /api | /api/ 这两个URL
+        // id = 123 , 可通过this.Ctx.ParamIndex64("id") 获取参数值
+        // 正则中"?" 匹配{id:[0-9]?}表达式零次或多次
+atc.AddRouter("api.{id:[0-9]?}",&api.IndexHandler{})
+
+// 匹配 /api/123, 不匹配 /api
+atc.AddRouter("api.{id:[0-9]+}",&api.IndexHandler{})
+atc.AddRouter("api.{id}",&api.IndexHandler{})
+
+// 自定义正则匹配, 匹配 /api/adolph , name = adolph
+atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
+```
 
 ## RPC 经典案例
 
@@ -245,7 +285,9 @@ func init() {
     - 优化JSON输出，变更前仅支持 this.Ctx.SetDatas( map[string]interface{}) -> this.JSON() ，变更后兼容之前使用方式同时支持 this.JSON(interface{})
 * 2017.11
     - cache缓存模块支持redis
-    - 修复router路由正则匹配BUG
+* 2017.12
+    - 优化RESTFul router 正则匹配
+    - Context提供更多的路由正则参数解析方法 及 更多的表单解析方法
 
 ## 即将支持特性(待定稿)
 

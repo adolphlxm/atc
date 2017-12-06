@@ -24,7 +24,6 @@ func NewRedisCache() cache.Cache {
 func (c *Cache) Do(commandName string, args ...interface{}) (reply interface{}, err error) {
 	p := c.p.Get()
 	defer p.Close()
-
 	return p.Do(commandName, args...)
 }
 

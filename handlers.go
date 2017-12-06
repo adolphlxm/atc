@@ -69,37 +69,37 @@ func (h *Handler) Init(ctx *context.Context) {
 
 // Get
 func (h *Handler) Get() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Post
 func (h *Handler) Post() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Delete
 func (h *Handler) Delete() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Put
 func (h *Handler) Put() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // PATCH
 func (h *Handler) Patch() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Head
 func (h *Handler) Head() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Options
 func (h *Handler) Options() {
-	h.Error404(404)
+	h.Error404(404).JSON()
 }
 
 // Websocket

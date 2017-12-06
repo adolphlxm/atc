@@ -153,11 +153,29 @@ func (ctx *Context) IP() string {
 	return ctx.Request.RemoteAddr
 }
 
+func (ctx *Context) ParamInt(key string) int {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return int
+}
+
+func (ctx *Context) ParamInt64(key string) int64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return int64(int)
+}
+
+func (ctx *Context) ParamUint64(key string) uint64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return uint64(int)
+}
+
 // Query returns input data item string by a given string.
 func (ctx *Context) Query(key string) string {
-	if val := ctx.Param(key); val != "" {
-		return val
-	}
+	//if val := ctx.Param(key); val != "" {
+	//	return val
+	//}
 	if err := ctx.parseForm(); err != nil {
 		return ""
 	}
