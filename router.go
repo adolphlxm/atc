@@ -371,7 +371,7 @@ func (r *Router) regexpRouter() (err error) {
 		}
 
 		exprPattern.WriteByte('$')
-		fmt.Println(exprPattern.String())
+
 		//Compile parses a regular expression and returns, if successful
 		r.Regexp, err = regexp.Compile(exprPattern.String())
 	}
