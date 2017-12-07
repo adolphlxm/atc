@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.8.0 (Beta 2017-12-6)
+当前版本: 0.8.1 (Beta 2017-12-7)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
