@@ -14,16 +14,23 @@ func testAllLevel(l *AtcLogger) {
 
 func TestStdout(t *testing.T) {
 	l1 := NewLogger(10000)
-	l1.SetHandler("stdout")
-	l1.SetLevel(LevelDebug)
+	l1.SetLogger(AdapterStdout)
 	testAllLevel(l1)
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Millisecond)
 }
 
 func TestFile(t *testing.T) {
 	l := NewLogger(10000)
-	l.SetHandler("file", `{"filename":"test.log","perm":"0660"}`)
+	l.SetLogger(AdapterFile, `{"filename":"test.log","perm":"0660"}`)
 	l.SetLevel(LevelDebug)
 	testAllLevel(l)
-	time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Millisecond)
+}
+
+func TestLogs(t *testing.T){
+	Trace("%v", "Trace info.")
+	Info("%v", "Info info.")
+	Notice("%v", "Notice info.")
+	Debug("%v", "Debug info.")
+	time.Sleep(1 * time.Millisecond)
 }
