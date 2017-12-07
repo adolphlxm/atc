@@ -352,7 +352,8 @@ func (r *Router) regexpRouter() (err error) {
 					r.Pattern[idxs[i]:end])
 			}
 
-			if patt[len(patt)-1:] == "?" {
+			switch patt[len(patt)-1:] {
+			case "?","*":
 				switch path.Clean(raw) {
 				case "/":
 					raw = "([/]?)"
@@ -370,7 +371,7 @@ func (r *Router) regexpRouter() (err error) {
 		}
 
 		exprPattern.WriteByte('$')
-
+		fmt.Println(exprPattern.String())
 		//Compile parses a regular expression and returns, if successful
 		r.Regexp, err = regexp.Compile(exprPattern.String())
 	}

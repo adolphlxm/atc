@@ -142,11 +142,15 @@ atc.AddRouter("api.group", &api.GroupHandler{})
 
  为了更加方便的路由设置，ATC 支持多种方式的路由：
 
+* {id:[\\d]*}, 其中 '*' 表示匹配{}表达式零次或多次
+* {id:[\\d]?}, 其中 '?' 表示匹配{}表达式零次或一次
+* {id:[\\d]+}, 其中 '*' 表示匹配{}表达式一次或多次
+
 ```router
 // 匹配 /api/123 , 同时可匹配 /api | /api/ 这两个URL
         // id = 123 , 可通过this.Ctx.ParamIndex64("id") 获取参数值
-        // 正则中"?" 匹配{id:[0-9]?}表达式零次或多次
-atc.AddRouter("api.{id:[0-9]?}",&api.IndexHandler{})
+        // 匹配{id:[0-9]*}表达式零次或多次
+atc.AddRouter("api.{id:[0-9]*}",&api.IndexHandler{})
 
 // 匹配 /api/123, 不匹配 /api
 atc.AddRouter("api.{id:[0-9]+}",&api.IndexHandler{})
