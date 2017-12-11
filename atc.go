@@ -30,7 +30,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.7.7"
+const VERSION = "0.8.1"
 
 var Route *RouterGroup
 
@@ -115,19 +115,18 @@ func (group *RouterGroup) Group(versionPath string) *RouterGroup {
 //
 // RESTful usage:
 //	v1 := atc.Route.Group("V1"){
-//		v1.AddRouter("users",&LoginController{})
+//		// GET/POST... http://localhost/V1/user/login
+//		v1.AddRouter("user",&user.UserHandler{})
 //	}
 //	v2 := atc.Route.Group("V2"){
-//		v2.AddRouter("shop.car",&InfoController{})
+//		//	GET/POST... http://localhost/V2/user | GET/POST... http://localhost/V2/user/{id}
+//		v2.AddRouter("user.{id:[0-9]?}",&user2.UserHandler{})
+//
+//		//	GET/POST... http://localhost/V2/user/group
+//		v2.AddRouter("user.group",&user2.GroupHandler{})
 //	}
 //
-//
 // Request usage:
-//
-// RPC_HTTP:
-//	GET/POST... http://localhost/V1/users/login
-//	GET/POST... http://localhost/V2/shop/car/info
-//
 // RPC_WEBSOCKET:
 //	{"version":"V1","method":"GET(POST...)","handler":"users.login","body":""}
 //	{"version":"V2","method":"GET(POST...)","handler":"shop.car.info","body":""}

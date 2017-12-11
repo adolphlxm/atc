@@ -153,11 +153,29 @@ func (ctx *Context) IP() string {
 	return ctx.Request.RemoteAddr
 }
 
+func (ctx *Context) ParamInt(key string) int {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return int
+}
+
+func (ctx *Context) ParamInt64(key string) int64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return int64(int)
+}
+
+func (ctx *Context) ParamUint64(key string) uint64 {
+	var int int
+	int, _ = strconv.Atoi(ctx.Param(key))
+	return uint64(int)
+}
+
 // Query returns input data item string by a given string.
 func (ctx *Context) Query(key string) string {
-	if val := ctx.Param(key); val != "" {
-		return val
-	}
+	//if val := ctx.Param(key); val != "" {
+	//	return val
+	//}
 	if err := ctx.parseForm(); err != nil {
 		return ""
 	}
@@ -283,7 +301,6 @@ func (ctx *Context) parseForm() (err error) {
 			err = ctx.Request.ParseForm()
 		}
 	}
-
 	if err != nil {
 		return err
 	}
@@ -298,7 +315,6 @@ func (ctx *Context) MultipartFormMaxMemory(maxMemory int64) {
 /************************************/
 /********* Response output **********/
 /************************************/
-
 // ResHeader sets response header item string via given key.
 func (ctx *Context) ResponseHeader(key, val string) {
 	if len(val) == 0 {
@@ -371,7 +387,6 @@ func (ctx *Context) SaveJSON(data interface{}) error {
 		err     error
 		content []byte
 	)
-
 	if ctx.IsWebsocket() {
 		err = websocket.JSON.Send(ctx.WS, data)
 		//ctx.Reset()
