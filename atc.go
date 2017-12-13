@@ -176,11 +176,34 @@ func ExecuteHandler(httpMethod, module string, c *Handler) {
 	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
 }
 
-// Shut down package method.
+func GracePushFront(quit grace.TT) {
+	lazyInit()
+	graceNodeTree.PushFront(quit)
+}
 
-func NewGrace() *grace.Grace {
+func GracePushBack(quit grace.TT) {
+	lazyInit()
+	graceNodeTree.PushBack(quit)
+}
+
+func GraceInsertAfter(moduleID string, quit grace.TT) {
+	lazyInit()
+	graceNodeTree.InsertAfter(moduleID, quit)
+}
+
+func GraceInsertBefore(moduleID string, quit grace.TT) {
+	lazyInit()
+	graceNodeTree.InsertBefore(moduleID, quit)
+}
+
+func GraceRemove(moduleID string) {
+	lazyInit()
+	graceNodeTree.Remove(moduleID)
+}
+
+// lazyInit lazily initializes a zero Grace list value.
+func lazyInit() {
 	if graceNodeTree == nil {
 		graceNodeTree = grace.NewGrace()
 	}
-	return graceNodeTree
 }

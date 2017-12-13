@@ -178,18 +178,16 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
 * 客户端所有退出模块完成后，接着退出ATC框架本身相关需退出的逻辑。
 
 ### 使用方法
-
-        grace := atc.NewGrace()
         // 双向链表队头插入退出接口
-        grace.PushFront(TT)
+        atc.GracePushFront(TT)
         // 双向链表队尾插入退出接口
-        grace.PushBack(TT)
+        atc.GracePushBack(TT)
         // 在"atc"模块的链表之后插入退出接口
-        grace.InsertAfter("atc",TT)
+        atc.GraceInsertAfter("atc",TT)
         // 在"atc"模块的链表之前插入退出接口
-        grace.InsertBefore("atc",TT)
+        atc.GraceInsertBefore("atc",TT)
         // 在链表中移除"atc"退出接口
-        grace.Remove("atc")
+        atc.GraceRemove("atc")
 
 ## RPC 经典案例
 
