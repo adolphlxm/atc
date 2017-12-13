@@ -176,24 +176,24 @@ func ExecuteHandler(httpMethod, module string, c *Handler) {
 	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
 }
 
-func GracePushFront(quit grace.TT) {
+func GracePushFront(quit grace.TT) error {
 	lazyInit()
-	graceNodeTree.PushFront(quit)
+	return graceNodeTree.PushFront(quit)
 }
 
-func GracePushBack(quit grace.TT) {
+func GracePushBack(quit grace.TT) error {
 	lazyInit()
-	graceNodeTree.PushBack(quit)
+	return graceNodeTree.PushBack(quit)
 }
 
-func GraceInsertAfter(moduleID string, quit grace.TT) {
+func GraceInsertAfter(moduleID string, quit grace.TT) error {
 	lazyInit()
-	graceNodeTree.InsertAfter(moduleID, quit)
+	return graceNodeTree.InsertAfter(moduleID, quit)
 }
 
-func GraceInsertBefore(moduleID string, quit grace.TT) {
+func GraceInsertBefore(moduleID string, quit grace.TT) error {
 	lazyInit()
-	graceNodeTree.InsertBefore(moduleID, quit)
+	return graceNodeTree.InsertBefore(moduleID, quit)
 }
 
 func GraceRemove(moduleID string) {

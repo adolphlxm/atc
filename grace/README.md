@@ -8,13 +8,13 @@
     go get github.com/adolphlxm/atc/grace
    
 # 使用步骤
-##第一步：引入包
+## 第一步：引入包
     
     import(
         "github.com/adolphlxm/atc/grace"
     )
     
-##第二步：实现接口
+## 第二步：实现接口
 
 客户端退出需实现如下接口(支持多模块退出)：
 
@@ -27,7 +27,7 @@
  * Stop() 方法根据客户端业务自行实现退出逻辑
 
 
-##第三步：初始化Grace
+## 第三步：初始化Grace
 
     grace := grace.NewGrace()
     // 双向链表队头插入退出接口
