@@ -27,12 +27,14 @@ import (
 	"time"
 
 	"github.com/adolphlxm/atc/logs"
+	"github.com/adolphlxm/atc/grace"
 )
 
 // ATC framework version.
-const VERSION = "0.8.1"
+const VERSION = "0.8.2"
 
 var Route *RouterGroup
+var graceNodeTree *grace.Grace
 
 // Running :
 //	1. ORM
@@ -74,27 +76,33 @@ func stop() {
 	for {
 		sig := <-sigChan
 		logs.Trace("%v", sig)
-		// TODO 发送信号
-		// TODO 等待回复(超时时间)
+
 		switch sig {
 		case syscall.SIGTERM, syscall.SIGINT:
 			os.Exit(1)
 		case syscall.SIGQUIT:
-			logs.Trace("Shutting down start...")
+			logs.Trace("shutdown: start...")
 		}
+
+		// Grace exit.
+		if err := graceNodeTree.Stop(); err != nil {
+			logs.Error("shutdown: grace exit, err:%s", err.Error())
+			continue
+		}
+
 		break
 	}
 
 	if Aconfig.ThriftSupport {
 		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
 		ThriftRPC.Shutdown(ctx)
-		logs.Trace("Shutting down thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
+		logs.Trace("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
 	}
 
 	if Aconfig.HTTPSupport {
 		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
 		HttpAPP.Server.Shutdown(ctx)
-		logs.Trace("Shutting down http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
+		logs.Trace("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 		time.Sleep(1 * time.Millisecond)
 	}
 
@@ -166,4 +174,13 @@ func AddFilter(location Location, module string, filter FilterFunc) {
 
 func ExecuteHandler(httpMethod, module string, c *Handler) {
 	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
+}
+
+// Shut down package method.
+
+func NewGrace() *grace.Grace {
+	if graceNodeTree == nil {
+		graceNodeTree = grace.NewGrace()
+	}
+	return graceNodeTree
 }

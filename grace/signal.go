@@ -6,6 +6,8 @@ import (
 	"os/signal"
 )
 
+// TODO
+
 type SignalFunc func() Signal
 
 type Signal interface {

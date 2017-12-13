@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.8.1 (Beta 2017-12-7)
+当前版本: 0.8.2 (Beta 2017-12-13)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
@@ -142,9 +142,9 @@ atc.AddRouter("api.group", &api.GroupHandler{})
 
  为了更加方便的路由设置，ATC 支持多种方式的路由：
 
-* {id:[\\d]*}, 其中 '*' 表示匹配{}表达式零次或多次
-* {id:[\\d]?}, 其中 '?' 表示匹配{}表达式零次或一次
-* {id:[\\d]+}, 其中 '*' 表示匹配{}表达式一次或多次
+* {id:[\\d]`*`}, 其中 '*' 表示匹配{}表达式零次或多次
+* {id:[\\d]`?`}, 其中 '?' 表示匹配{}表达式零次或一次
+* {id:[\\d]`+`}, 其中 '+' 表示匹配{}表达式一次或多次
 
 ```router
 // 匹配 /api/123 , 同时可匹配 /api | /api/ 这两个URL
@@ -159,6 +159,37 @@ atc.AddRouter("api.{id}",&api.IndexHandler{})
 // 自定义正则匹配, 匹配 /api/adolph , name = adolph
 atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
 ```
+
+## 顺序平滑退出
+
+使用双向链表list实现
+
+* 通过实现如下接口来完成客户端平滑顺序退出逻辑
+
+        type TT interface {
+        	ModuleID() string
+        	Stop() error
+        }
+     - ModuleID() 方法返回string, 表示退出模块名称
+     - Stop() 方法根据客户端业务自行实现退出逻辑
+
+* 插入实现的TT接口Struct
+* 会逆向顺序逐个退出，从队尾开始
+* 客户端所有退出模块完成后，接着退出ATC框架本身相关需退出的逻辑。
+
+### 使用方法
+
+        grace := atc.NewGrace()
+        // 双向链表队头插入退出接口
+        grace.PushFront(TT)
+        // 双向链表队尾插入退出接口
+        grace.PushBack(TT)
+        // 在"atc"模块的链表之后插入退出接口
+        grace.InsertAfter("atc",TT)
+        // 在"atc"模块的链表之前插入退出接口
+        grace.InsertBefore("atc",TT)
+        // 在链表中移除"atc"退出接口
+        grace.Remove("atc")
 
 ## RPC 经典案例
 
@@ -292,6 +323,7 @@ func init() {
 * 2017.12
     - 优化RESTFul router 正则匹配
     - Context提供更多的路由正则参数解析方法 及 更多的表单解析方法
+    - 增加客户端顺序平滑退出接口
 
 ## 即将支持特性(待定稿)
 
