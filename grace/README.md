@@ -40,6 +40,10 @@
     grace.InsertBefore("atc",TT)
     // 在链表中移除"atc"退出接口
     grace.Remove("atc")
+    // 在链表中将"atc"接口移动到"http"之后。
+    grace.MoveAfter("atc", "http")
+    // 在链表中将"atc"接口移动到"http"之前。
+    grace.MoveAfter("atc", "http")
     
 ## 案例
 

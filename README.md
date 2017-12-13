@@ -164,7 +164,7 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
 
 使用双向链表list实现
 
-* 通过实现如下接口来完成客户端平滑顺序退出逻辑
+* 客户端实现TT接口
 
         type TT interface {
         	ModuleID() string
@@ -173,9 +173,9 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
      - ModuleID() 方法返回string, 表示退出模块名称
      - Stop() 方法根据客户端业务自行实现退出逻辑
 
-* 插入实现的TT接口Struct
-* 会逆向顺序逐个退出，从队尾开始
-* 客户端所有退出模块完成后，接着退出ATC框架本身相关需退出的逻辑。
+* 通过atc.Grace...() 方法插入实现的接口struct
+* ATC默认在队头插入了`http`,`thrift`两个TT退出接口，也可根据客户端需要自行控制退出顺序。
+* 当ATC收到退出信号时(参阅信号说明)，从队尾开始,逆向顺序逐个退出
 
 ### 使用方法
         // 双向链表队头插入退出接口
@@ -188,6 +188,10 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
         atc.GraceInsertBefore("atc",TT)
         // 在链表中移除"atc"退出接口
         atc.GraceRemove("atc")
+        // 在链表中将"atc"接口移动到"http"之后。
+        atc.GraceMoveAfter("atc", "http")
+        // 在链表中将"atc"接口移动到"http"之前。
+        atc.GraceMoveAfter("atc", "http")
 
 ## RPC 经典案例
 

@@ -51,12 +51,14 @@ func Run() {
 		if err != nil {
 			panic(err)
 		}
+		GracePushFront(&thriftShutDown{})
 		logs.Trace("Thrift server Running on %v", ThriftRPC.Addr())
 	}
 
 	// If support HTTP serve.
 	if Aconfig.HTTPSupport {
 		HttpAPP.Run()
+		GracePushFront(&httpShutDown{})
 	}
 
 	logs.Trace("Process PID for %d", os.Getpid())
@@ -92,21 +94,6 @@ func stop() {
 
 		break
 	}
-
-	if Aconfig.ThriftSupport {
-		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
-		ThriftRPC.Shutdown(ctx)
-		logs.Trace("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
-	}
-
-	if Aconfig.HTTPSupport {
-		ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
-		HttpAPP.Server.Shutdown(ctx)
-		logs.Trace("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
-		time.Sleep(1 * time.Millisecond)
-	}
-
-	// TODO
 }
 
 type RouterGroup struct {
@@ -201,9 +188,42 @@ func GraceRemove(moduleID string) {
 	graceNodeTree.Remove(moduleID)
 }
 
+func GraceMoveAfter(moduleID1, moduleID2 string) {
+	lazyInit()
+	graceNodeTree.MoveAfter(moduleID1, moduleID2)
+}
+
+func GraceMoveBefore(moduleID1, moduleID2 string) {
+	lazyInit()
+	graceNodeTree.MoveBefore(moduleID1, moduleID2)
+}
+
 // lazyInit lazily initializes a zero Grace list value.
 func lazyInit() {
 	if graceNodeTree == nil {
 		graceNodeTree = grace.NewGrace()
 	}
+}
+
+type httpShutDown struct {}
+func (this *httpShutDown) ModuleID() string {
+	return "http"
+}
+func (this *httpShutDown) Stop() error {
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
+	err := HttpAPP.Server.Shutdown(ctx)
+	logs.Trace("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
+	time.Sleep(1 * time.Millisecond)
+	return err
+}
+
+type thriftShutDown struct {}
+func (this *thriftShutDown) ModuleID() string {
+	return "thrift"
+}
+func (this *thriftShutDown) Stop() error {
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
+	err := ThriftRPC.Shutdown(ctx)
+	logs.Trace("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
+	return err
 }

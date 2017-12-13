@@ -52,6 +52,7 @@ func Test_all(t *testing.T) {
 	TestGrace_InsertAfter(t)
 	TestGrace_InsertBefore(t)
 	TestGrace_Remove(t)
+	TestGrace_MoveAfter(t)
 
 	graceTest.Stop()
 }
@@ -86,4 +87,8 @@ func TestGrace_InsertBefore(t *testing.T) {
 
 func TestGrace_Remove(t *testing.T) {
 	graceTest.Remove("GracePushFront")
+}
+
+func TestGrace_MoveAfter(t *testing.T) {
+	graceTest.MoveAfter("GraceInsertBefore", "GraceInsertAfter")
 }
