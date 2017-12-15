@@ -51,7 +51,18 @@ func init() {
 		panic(err)
 	}
 
-	logs.SetLogger(Aconfig.LogOutput, `{"filename":"`+AppConfig.DefaultString("log.file", "")+`", "perm":"`+AppConfig.DefaultString("log.perm", "")+`"}`)
+	// Initialize logs
+	logFile := &logs.File{
+		LogDir:AppConfig.DefaultString("log.file", ""),
+		MaxSize:uint64(AppConfig.DefaultInt("log.maxsize", 0)),
+		Buffersize:AppConfig.DefaultInt("log.buffersize", 0),
+		FlushInterval:uint64(AppConfig.DefaultInt("log.flushinterval", 0)),
+	}
+	err = logs.SetLogger(Aconfig.LogOutput, logFile)
+	if err != nil {
+		panic(err)
+	}
+
 	if Aconfig.Debug {
 		logs.SetLevel(logs.LevelDebug)
 	} else {

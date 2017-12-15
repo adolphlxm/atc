@@ -21,10 +21,11 @@ func TestStdout(t *testing.T) {
 
 func TestFile(t *testing.T) {
 	l := NewLogger(10000)
-	l.SetLogger(AdapterFile, `{"filename":"test.log","perm":"0660"}`)
+	l.SetLogger(AdapterFile, &File{LogDir:"./", MaxSize:1000,Buffersize:1000,FlushInterval:5})
 	l.SetLevel(LevelDebug)
 	testAllLevel(l)
 	time.Sleep(1 * time.Millisecond)
+	l.Flush()
 }
 
 func TestLogs(t *testing.T){

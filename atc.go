@@ -31,7 +31,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.8.2"
+const VERSION = "0.9.0"
 
 var Route *RouterGroup
 var graceNodeTree *grace.Grace
@@ -68,6 +68,8 @@ func Run() {
 
 // Wait for all HTTP and Thrift fetches to complete.
 func stop() {
+	// 刷新日志
+	defer logs.Flush()
 
 	// Signal
 	//	1. TERM,INT 立即终止

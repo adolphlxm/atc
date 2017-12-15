@@ -12,14 +12,18 @@ func NewStdoutLog() IAtcLogger {
 	return stdout
 }
 
-func (s *Stdout) Init(config string) error {
+func (s *Stdout) Init(config interface{}) error {
 	return nil
 }
 
 // Output message in stdout.
-func (s *Stdout) Output(msg string) error {
-	fmt.Println(msg)
+func (s *Stdout) Output(msg []byte) error {
+	fmt.Println(string(msg))
 	return nil
+}
+
+func (s *Stdout) Flush(){
+
 }
 
 //Register NewStdout

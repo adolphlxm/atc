@@ -4,7 +4,7 @@ ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 T
 
 要求GO版本 >= 1.8
 
-当前版本: 0.8.2 (Beta 2017-12-13)
+当前版本: 0.9.0 (Beta 2017-12-15)
 
 ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
 
@@ -244,6 +244,7 @@ func init() {
     logs.Warn("")
     logs.Error("")
     ...
+    logs.Flush()
 ```
 
 ## 编译并运行
@@ -326,6 +327,7 @@ func init() {
     - 优化RESTFul router 正则匹配
     - Context提供更多的路由正则参数解析方法 及 更多的表单解析方法
     - 增加客户端顺序平滑退出接口
+    - 优化logs包，日志写入缓冲区，定时刷新缓存区到磁盘(也可以退出程序时，调用logs.Flush()方法主动刷取)
 
 ## 即将支持特性(待定稿)
 

@@ -28,13 +28,14 @@ const (
 	AdapterFile   = "file"
 )
 
-var LevelName [7]string = [7]string{"Fatal", "Error", "Warn", "Notice", "Info", "Trace", "Debug"}
+var LevelName [7]string = [7]string{"F", "E", "W", "N", "I", "T", "D"}
 
 type LoggerFunc func() IAtcLogger
 
 type IAtcLogger interface {
-	Init(config string) error
-	Output(msg string) error
+	Init(config interface{}) error
+	Output(msg []byte) error
+	Flush()
 }
 
 var adapters = make(map[string]LoggerFunc)
@@ -57,7 +58,7 @@ type AtcLogger struct {
 	skip  int
 	level int
 
-	msg   chan string
+	msg   chan []byte
 	close int32
 }
 
@@ -66,7 +67,7 @@ func NewLogger(channellen int64) *AtcLogger {
 		handler: make(map[string]IAtcLogger),
 		level:   LevelDebug,
 		skip:    3,
-		msg:     make(chan string, channellen),
+		msg:     make(chan []byte, channellen),
 	}
 
 	go loger.Run()
@@ -82,7 +83,7 @@ func (l *AtcLogger) SetLevel(level int) {
 	l.level = level
 }
 
-func (l *AtcLogger) SetLogger(adapterName string, configs ...string) error {
+func (l *AtcLogger) SetLogger(adapterName string, configs ...interface{}) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -119,6 +120,7 @@ func (l *AtcLogger) Output(level int, msg string) error {
 	now := time.Now().Format(TimeFormat)
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
 	if level > l.level {
 		return nil
 	}
@@ -129,10 +131,15 @@ func (l *AtcLogger) Output(level int, msg string) error {
 		line = 0
 	}
 	_, filename := path.Split(file)
-	msg = fmt.Sprintf("[ATC] [%s] %s %s#%d: %s", LevelName[level], now, filename, line, msg)
-
-	l.msg <- msg
+	msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[level], now, filename, line, msg)
+	l.msg <- []byte(msg)
 	return nil
+}
+
+func (l *AtcLogger) Flush(){
+	for _, ll := range l.handler {
+		ll.Flush()
+	}
 }
 
 func (l *AtcLogger) Trace(format string, v ...interface{}) {
@@ -174,8 +181,8 @@ func (l *AtcLogger) Fatal(format string, v ...interface{}) {
 // Defaultlogs is the default ServeMux used by Serve.
 var defaultlogs = NewLogger(10000)
 
-func SetLogger(adapterName string, configs ...string) {
-	defaultlogs.SetLogger(adapterName, configs...)
+func SetLogger(adapterName string, configs ...interface{}) error {
+	return defaultlogs.SetLogger(adapterName, configs...)
 }
 
 func SetLevel(level int) {
@@ -208,4 +215,8 @@ func Error(format string, v ...interface{}) {
 
 func Fatal(format string, v ...interface{}) {
 	defaultlogs.Fatal(format, v...)
+}
+
+func Flush(){
+	defaultlogs.Flush()
 }
