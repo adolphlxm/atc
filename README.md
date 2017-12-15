@@ -236,6 +236,13 @@ func init() {
 ## 日志处理
 **通过`app.ini`配置日志输出引擎**
 
+**参数说明**
+
+* logdir 存放日志路径
+* maxsize 日志分割文件尺寸, 单位:byte
+* buffersize 日志缓冲区大小，单位:byte
+* flushinterval 定时刷新日志到磁盘的间隔时间，单位:s
+
 **通用使用方式**
 
 ```go
