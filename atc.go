@@ -29,6 +29,8 @@ import (
 	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/grace"
 	"github.com/adolphlxm/atc/queue"
+	_ "github.com/adolphlxm/atc/queue/queue_redis"
+	_ "github.com/adolphlxm/atc/queue/queue_nats"
 )
 
 // ATC framework version.
