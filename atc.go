@@ -28,13 +28,16 @@ import (
 
 	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/grace"
+	"github.com/adolphlxm/atc/queue"
 )
 
 // ATC framework version.
-const VERSION = "0.9.0"
+const VERSION = "0.9.1"
 
 var Route *RouterGroup
 var graceNodeTree *grace.Grace
+var QueuePublisher queue.Publisher
+var QueueConsumer queue.Consumer
 
 // Running :
 //	1. ORM
@@ -52,7 +55,7 @@ func Run() {
 			panic(err)
 		}
 		GracePushFront(&thriftShutDown{})
-		logs.Trace("Thrift server Running on %v", ThriftRPC.Addr())
+		logs.Tracef("Thrift server Running on %v", ThriftRPC.Addr())
 	}
 
 	// If support HTTP serve.
@@ -61,7 +64,24 @@ func Run() {
 		GracePushFront(&httpShutDown{})
 	}
 
-	logs.Trace("Process PID for %d", os.Getpid())
+	if Aconfig.QueuePublisherSupport {
+		QueuePublisher, err = queue.NewPublisher(Aconfig.QueuePublisherDrivername, Aconfig.QueuePublisherAddrs)
+		if err != nil {
+			panic(err)
+		}
+		GracePushFront(&queuePublisherShutDown{})
+	}
+
+	if Aconfig.QueueConsumerSupport {
+		QueueConsumer, err = queue.NewConsumer(Aconfig.QueueConsumerDrivername, Aconfig.QueueConsumerAddrs)
+		if err != nil {
+			panic(err)
+		}
+		GracePushFront(&queueConsumerShutDown{})
+	}
+
+
+	logs.Tracef("Process PID for %d", os.Getpid())
 
 	stop()
 }
@@ -79,18 +99,18 @@ func stop() {
 
 	for {
 		sig := <-sigChan
-		logs.Trace("%v", sig)
+		logs.Tracef("%v", sig)
 
 		switch sig {
 		case syscall.SIGTERM, syscall.SIGINT:
 			os.Exit(1)
 		case syscall.SIGQUIT:
-			logs.Trace("shutdown: start...")
+			logs.Tracef("shutdown: start...")
 		}
 
 		// Grace exit.
 		if err := graceNodeTree.Stop(); err != nil {
-			logs.Error("shutdown: grace exit, err:%s", err.Error())
+			logs.Errorf("shutdown: grace exit, err:%s", err.Error())
 			continue
 		}
 
@@ -214,7 +234,7 @@ func (this *httpShutDown) ModuleID() string {
 func (this *httpShutDown) Stop() error {
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
 	err := HttpAPP.Server.Shutdown(ctx)
-	logs.Trace("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
+	logs.Tracef("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
 	time.Sleep(1 * time.Millisecond)
 	return err
 }
@@ -226,6 +246,22 @@ func (this *thriftShutDown) ModuleID() string {
 func (this *thriftShutDown) Stop() error {
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
 	err := ThriftRPC.Shutdown(ctx)
-	logs.Trace("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
+	logs.Tracef("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
 	return err
+}
+
+type queuePublisherShutDown struct{}
+func (this *queuePublisherShutDown) ModuleID() string {
+	return "queuePublisher"
+}
+func (this *queuePublisherShutDown) Stop() error {
+	return QueuePublisher.Close()
+}
+
+type queueConsumerShutDown struct {}
+func (this *queueConsumerShutDown) ModuleID() string {
+	return "queueConsumer"
+}
+func (this *queueConsumerShutDown) Stop() error {
+	return QueueConsumer.Close()
 }

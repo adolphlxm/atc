@@ -130,7 +130,7 @@ func (h *HandlerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer h.recoverPanic(ctx)
 
-	logs.Trace("%s %s for %v", r.Method, r.URL.Path, ctx.IP())
+	logs.Tracef("%s %s for %v", r.Method, r.URL.Path, ctx.IP())
 
 	// Static files routing.
 	if Aconfig.FrontSupport {
@@ -177,10 +177,10 @@ func (h *HandlerRouter) recoverPanic(c *context.Context) {
 	if err := recover(); err != nil {
 		// Is open panic
 		if !Aconfig.Debug {
-			logs.Fatal("%s request recover: %v", c.Path(), err)
+			logs.Fatalf("%s request recover: %v", c.Path(), err)
 		}
 
-		logs.Error("%s request recover: %v", c.Path(), err)
+		logs.Errorf("%s request recover: %v", c.Path(), err)
 	}
 }
 
@@ -265,7 +265,7 @@ func (h *HandlerRouter) findFilter(location Location, requestPath string, c *con
 			// check method and path
 			if filter.MatchPath(requestPath) {
 				filter.RunFilter(c)
-				logs.Trace("Execution handler filter path:%v", filter.Pattern)
+				logs.Tracef("Execution handler filter path:%v", filter.Pattern)
 			}
 		}
 	}

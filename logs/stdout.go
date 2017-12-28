@@ -18,7 +18,7 @@ func (s *Stdout) Init(config interface{}) error {
 
 // Output message in stdout.
 func (s *Stdout) Output(msg []byte) error {
-	fmt.Println(string(msg))
+	fmt.Print(string(msg))
 	return nil
 }
 

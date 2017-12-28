@@ -87,7 +87,7 @@ func timerTask(aliasname string, timeout int64, db orm.Orm) {
 			case <-t.C:
 				if err := db.Ping(aliasname); err != nil {
 					db.Clone(aliasname)
-					logs.Trace("ATC orm: reconnection successful to %s", aliasname)
+					logs.Tracef("ATC orm: reconnection successful to %s", aliasname)
 				}
 				t.Reset(timeDuration * time.Second)
 			}

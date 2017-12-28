@@ -1,14 +1,9 @@
 # ATC
 
-ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API 及 Thrift RPC的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
+ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Thrift RPC, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-
-当前版本: 0.9.0 (Beta 2017-12-15)
-
-ATC 概念 [设计架构](https://github.com/adolphlxm/atc/tree/dev/doc)
-
-[老版本GITHUB](https://github.com/lxmgo)
+当前版本: 0.9.1 (Beta 2017-12-28)
 
 ## 安装ATC
 
@@ -115,9 +110,9 @@ func init(){
     * 先执行`BFORE_ROUTE`过滤器, 未通过则得到一个json返回。
     * 通过过滤器后 加载 `Get()`, 将会得到一个json返回。
 
-## 路由
+## 路由规则
 
-### 固定路由
+**固定路由**
 
 固定路由也就是全匹配的路由，如下所示：
 
@@ -138,7 +133,7 @@ atc.AddRouter("api.group", &api.GroupHandler{})
 
 如上所示的固定路由就是我们最常用的路由方式，根据用户请求方法不同请求控制器中对应的方法，典型的 RESTful 方式。
 
-### 正则路由
+**正则路由**
 
  为了更加方便的路由设置，ATC 支持多种方式的路由：
 
@@ -174,10 +169,11 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
      - Stop() 方法根据客户端业务自行实现退出逻辑
 
 * 通过atc.Grace...() 方法插入实现的接口struct
-* ATC默认在队头插入了`http`,`thrift`两个TT退出接口，也可根据客户端需要自行控制退出顺序。
+* ATC默认在队头插入了`http`,`thrift`,`queuePublisher`,`queueConsumer`四个TT退出接口，也可根据客户端需要自行控制退出顺序。
 * 当ATC收到退出信号时(参阅信号说明)，从队尾开始,逆向顺序逐个退出
 
-### 使用方法
+**使用方法**
+
         // 双向链表队头插入退出接口
         atc.GracePushFront(TT)
         // 双向链表队尾插入退出接口
@@ -193,9 +189,53 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
         // 在链表中将"atc"接口移动到"http"之前。
         atc.GraceMoveAfter("atc", "http")
 
+## Queue 队列
+支持redis、nats两个队列
+
+* atc.QueuePublisher [生产实例]
+* QueueConsumer [消费实例]
+* 实例初始化配置可在`app.ini`内写
+
+**配置参数**
+
+* queue.publisher.support
+    - 参数：true | false
+    - 注释：是否支持开启生产实例
+* queue.publisher.drivername
+    - 参数: redis | nats
+    - 注释：支持的队列驱动
+* queue.publisher.addrs
+    - 参数：redis://127.0.0.1:6379
+    - 注释：redis连接地址
+* queue.consumer.support
+    - 参数：true | false
+    - 注释：是否支持开启消费者实例
+* queue.consumer.drivername
+    - 参数: redis | nats
+    - 注释：支持的队列驱动
+* queue.consumer.addrs
+    - 参数：redis://127.0.0.1:6379
+    - 注释：redis连接地址
+
+**使用方法**
+
+```go
+// Publisher
+atc.QueuePublisher.Publish("subject", &message.Message{
+    Body: util.MustMessageBody(nil, /* point to your protobuffer struct */ ),
+})
+
+
+// Consumer
+sub,_ := atc.QueueConsumer.Subscribe("subject", "cluster-group")
+msg, _ := sub.NextMessage(time.Second)
+// logic for msg
+```
+
+
 ## RPC 经典案例
 
-### Thrift RPC
+**Thrift RPC**
 关于Thrift RPC 具体可以 度娘、谷爹查看
 
 [之前写过一篇Thrift简单使用教程：GO/PHP使用指南](http://blog.csdn.net/liuxinmingcode/article/details/45696237)
@@ -222,7 +262,7 @@ func init() {
 }
 ```
 
-### gRPC...
+**gRPC...**
 
 ## ORM
 * atc包提供的RunOrms是通过`app.ini`配置文件加载多库初始化方法
@@ -243,13 +283,28 @@ func init() {
 * buffersize 日志缓冲区大小，单位:byte
 * flushinterval 定时刷新日志到磁盘的间隔时间，单位:s
 
+**级别说明(枚举)**
+
+0. LevelFatal = iota 打印文件名及行号
+1. LevelError 打印文件名及行号
+2. LevelWarn 打印文件名及行号
+3. LevelNotice 不打印文件名及行号
+4. LevelInfo 不打印文件名及行号
+5. LevelTrace 不打印文件名及行号
+6. LevelDebug 打印文件名及行号
+
+
 **通用使用方式**
 
 ```go
     logs.Debug("")
+    logs.Debugf("%v", "debugf")
     logs.Info("")
+    logs.Infof("%v", "infof")
     logs.Warn("")
+    logs.Warnf("%v", "warnf")
     logs.Error("")
+    logs.Errorf("%v", "errorf")
     ...
     logs.Flush()
 ```
@@ -334,7 +389,8 @@ func init() {
     - 优化RESTFul router 正则匹配
     - Context提供更多的路由正则参数解析方法 及 更多的表单解析方法
     - 增加客户端顺序平滑退出接口
-    - 优化logs包，日志写入缓冲区，定时刷新缓存区到磁盘(也可以退出程序时，调用logs.Flush()方法主动刷取)
+    - 优化logs包，日志写入缓冲区，定时刷新缓存区到磁盘(也可以退出程序时，调用logs.Flush()方法主动刷取)及配置文件
+    - 增加了queue队列封装包
 
 ## 即将支持特性(待定稿)
 

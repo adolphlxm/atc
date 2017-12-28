@@ -53,10 +53,10 @@ func init() {
 
 	// Initialize logs
 	logFile := &logs.File{
-		LogDir:AppConfig.DefaultString("log.file", ""),
-		MaxSize:uint64(AppConfig.DefaultInt("log.maxsize", 0)),
-		Buffersize:AppConfig.DefaultInt("log.buffersize", 0),
-		FlushInterval:uint64(AppConfig.DefaultInt("log.flushinterval", 0)),
+		LogDir:        AppConfig.DefaultString("log.dir", ""),
+		MaxSize:       uint64(AppConfig.DefaultInt("log.maxsize", 0)),
+		Buffersize:    AppConfig.DefaultInt("log.buffersize", 0),
+		FlushInterval: uint64(AppConfig.DefaultInt("log.flushinterval", 0)),
 	}
 	err = logs.SetLogger(Aconfig.LogOutput, logFile)
 	if err != nil {
@@ -74,7 +74,7 @@ func init() {
 	// In the conf/error. Ini file parsing error code
 	err = ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
 	if err != nil {
-		logs.Error("Error file loading err:%v", err.Error())
+		logs.Errorf("Error file loading err:%v", err.Error())
 	}
 
 	// Initialize app serve

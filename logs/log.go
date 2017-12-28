@@ -125,13 +125,19 @@ func (l *AtcLogger) Output(level int, msg string) error {
 		return nil
 	}
 
-	_, file, line, ok := runtime.Caller(l.skip)
-	if !ok {
-		file = "???"
-		line = 0
+	//
+	if level < LevelNotice || level == LevelDebug {
+		_, file, line, ok := runtime.Caller(l.skip)
+		if !ok {
+			file = "???"
+			line = 0
+		}
+		_, filename := path.Split(file)
+		msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[level], now, filename, line, msg)
+	} else {
+		msg = fmt.Sprintf("[%s] [%s] %s\n", LevelName[level], now, msg)
 	}
-	_, filename := path.Split(file)
-	msg = fmt.Sprintf("[%s] [%s %s:%d] %s\n", LevelName[level], now, filename, line, msg)
+
 	l.msg <- []byte(msg)
 	return nil
 }
@@ -142,37 +148,66 @@ func (l *AtcLogger) Flush(){
 	}
 }
 
-func (l *AtcLogger) Trace(format string, v ...interface{}) {
+func (l *AtcLogger) Trace(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelTrace, msg)
+}
+func (l *AtcLogger) Tracef(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelTrace, msg)
 }
 
-func (l *AtcLogger) Debug(format string, v ...interface{}) {
+func (l *AtcLogger) Debug(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelDebug, msg)
+}
+func (l *AtcLogger) Debugf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelDebug, msg)
 }
 
-func (l *AtcLogger) Info(format string, v ...interface{}) {
+func (l *AtcLogger) Info(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelInfo, msg)
+}
+func (l *AtcLogger) Infof(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelInfo, msg)
 }
 
-func (l *AtcLogger) Notice(format string, v ...interface{}) {
+func (l *AtcLogger) Notice(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelNotice, msg)
+}
+func (l *AtcLogger) Noticef(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelNotice, msg)
 }
 
-func (l *AtcLogger) Warn(format string, v ...interface{}) {
+func (l *AtcLogger) Warn(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelWarn, msg)
+}
+func (l *AtcLogger) Warnf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelWarn, msg)
 }
 
-func (l *AtcLogger) Error(format string, v ...interface{}) {
+func (l *AtcLogger) Error(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelError, msg)
+}
+func (l *AtcLogger) Errorf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelError, msg)
 }
 
-func (l *AtcLogger) Fatal(format string, v ...interface{}) {
+func (l *AtcLogger) Fatal(args ...interface{}) {
+	msg := fmt.Sprint(args...)
+	l.Output(LevelFatal, msg)
+	os.Exit(1)
+}
+func (l *AtcLogger) Fatalf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelFatal, msg)
 	os.Exit(1)
@@ -189,32 +224,53 @@ func SetLevel(level int) {
 	defaultlogs.SetLevel(level)
 }
 
-func Trace(format string, v ...interface{}) {
-	defaultlogs.Trace(format, v...)
+func Trace(args ...interface{}) {
+	defaultlogs.Trace(args...)
+}
+func Tracef(format string, v ...interface{}) {
+	defaultlogs.Tracef(format, v...)
 }
 
-func Debug(format string, v ...interface{}) {
-	defaultlogs.Debug(format, v...)
+func Debug(args ...interface{}) {
+	defaultlogs.Debug(args...)
+}
+func Debugf(format string, v ...interface{}) {
+	defaultlogs.Debugf(format, v...)
 }
 
-func Info(format string, v ...interface{}) {
-	defaultlogs.Info(format, v...)
+func Info(args ...interface{}) {
+	defaultlogs.Info(args...)
+}
+func Infof(format string, v ...interface{}) {
+	defaultlogs.Infof(format, v...)
 }
 
-func Notice(format string, v ...interface{}) {
-	defaultlogs.Notice(format, v...)
+func Notice(args ...interface{}) {
+	defaultlogs.Notice(args...)
+}
+func Noticef(format string, v ...interface{}) {
+	defaultlogs.Noticef(format, v...)
 }
 
-func Warn(format string, v ...interface{}) {
-	defaultlogs.Warn(format, v...)
+func Warn(args ...interface{}) {
+	defaultlogs.Warn(args...)
+}
+func Warnf(format string, v ...interface{}) {
+	defaultlogs.Warnf(format, v...)
 }
 
-func Error(format string, v ...interface{}) {
-	defaultlogs.Error(format, v...)
+func Error(args ...interface{}) {
+	defaultlogs.Error(args...)
+}
+func Errorf(format string, v ...interface{}) {
+	defaultlogs.Errorf(format, v...)
 }
 
-func Fatal(format string, v ...interface{}) {
-	defaultlogs.Fatal(format, v...)
+func Fatal(args ...interface{}) {
+	defaultlogs.Fatal(args...)
+}
+func Fatalf(format string, v ...interface{}) {
+	defaultlogs.Fatalf(format, v...)
 }
 
 func Flush(){

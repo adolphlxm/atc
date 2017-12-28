@@ -54,6 +54,14 @@ type Config struct {
 	OrmLogDebug   bool
 	OrmLogLevel   string
 	OrmAliasNames []string
+
+	// queue
+	QueuePublisherSupport bool
+	QueuePublisherDrivername string
+	QueuePublisherAddrs string
+	QueueConsumerSupport bool
+	QueueConsumerDrivername string
+	QueueConsumerAddrs string
 }
 
 // Parsing the configuration
@@ -101,6 +109,13 @@ func ParseConfig(confName, runmode string) error {
 		OrmLogDebug:   false,
 		OrmLogLevel:   "LOG_OFF",
 		OrmAliasNames: []string{},
+
+		QueuePublisherSupport: false,
+		QueuePublisherDrivername: "redis",
+		QueuePublisherAddrs: "redis://:123456@localhost",
+		QueueConsumerSupport:false,
+		QueueConsumerDrivername:"redis",
+		QueueConsumerAddrs:"redis://:123456@localhost",
 	}
 
 	if runmode != "" {
@@ -141,6 +156,13 @@ func ParseConfig(confName, runmode string) error {
 	Aconfig.OrmLogDebug = AppConfig.DefaultBool("orm.log.debug", Aconfig.OrmLogDebug)
 	Aconfig.OrmLogLevel = AppConfig.DefaultString("orm.log.level", Aconfig.OrmLogLevel)
 	Aconfig.OrmAliasNames = AppConfig.DefaultStrings("orm.aliasnames", Aconfig.OrmAliasNames)
+
+	Aconfig.QueuePublisherSupport = AppConfig.DefaultBool("queue.publisher.support", Aconfig.QueuePublisherSupport)
+	Aconfig.QueuePublisherDrivername = AppConfig.DefaultString("queue.publisher.drivername", Aconfig.QueuePublisherDrivername)
+	Aconfig.QueuePublisherAddrs = AppConfig.DefaultString("queue.publisher.addrs", Aconfig.QueuePublisherAddrs)
+	Aconfig.QueueConsumerSupport = AppConfig.DefaultBool("queue.consumer.support", Aconfig.QueueConsumerSupport)
+	Aconfig.QueueConsumerDrivername = AppConfig.DefaultString("queue.consumer.drivername", Aconfig.QueueConsumerDrivername)
+	Aconfig.QueueConsumerAddrs = AppConfig.DefaultString("queue.consumer.addrs", Aconfig.QueueConsumerAddrs)
 	return nil
 }
 
