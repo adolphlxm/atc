@@ -120,6 +120,14 @@ func (c *natsQueueConn) Request(subject string, req *message.RpcMessage, timeout
 	return ret, nil
 }
 
+func (c *natsQueueConn) Enqueue(subject string, msg *message.Message) error {
+	return nil
+}
+
+func (c *natsQueueConn) Dequeue(subject, group string, timeout time.Duration) (*message.Message, error) {
+	return nil,nil
+}
+
 func (c *natsQueueConn) Close() error {
 	c.conn.Close()
 	return nil
