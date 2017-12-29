@@ -87,3 +87,52 @@ func TestDrivers(t *testing.T) {
 		t.Errorf("driver's name want %s, got %s", driverName, ds[0])
 	}
 }
+
+func TestRedisQueueConn_Enqueue(t *testing.T) {
+	qc, _ := queue.NewPublisher(driverName, redisDSN)
+
+	defer qc.Close()
+	want := &testdata.Something{
+		Name: "something",
+		Age:  11,
+	}
+
+	msg := &message.Message{
+		Priority: message.MsgPriority_PRIORITY0,
+		Body:     util.MustMessageBody(want),
+	}
+	if err := qc.Enqueue(testSubject, msg); err != nil {
+		t.Error(err)
+	}
+}
+
+
+func TestRedisQueueConn_Dequeue(t *testing.T) {
+
+    TestRedisQueueConn_Enqueue(t)
+
+    qc, _ := queue.NewConsumer(driverName, redisDSN)
+
+    defer qc.Close()
+    want := &testdata.Something{
+        Name: "something",
+        Age:  11,
+    }
+
+    gotBuffer, err :=  qc.Dequeue(testSubject, "test",  10*time.Second)
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    got := testdata.Something{}
+    if err := ptypes.UnmarshalAny(gotBuffer.Body, &got); err != nil {
+        t.Fatal(err)
+    }
+
+    if want.Name != got.Name {
+        t.Errorf("want %s, got %s", want.Name, got.Name)
+    }
+    if want.Age != got.Age {
+        t.Errorf("want %v, got %v", want.Age, got.Age)
+    }
+}

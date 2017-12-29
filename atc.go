@@ -34,7 +34,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.9.1"
+const VERSION = "0.9.2"
 
 var Route *RouterGroup
 var graceNodeTree *grace.Grace
@@ -72,6 +72,7 @@ func Run() {
 			panic(err)
 		}
 		GracePushFront(&queuePublisherShutDown{})
+		logs.Trace("Queue Publisher Running.")
 	}
 
 	if Aconfig.QueueConsumerSupport {
@@ -80,6 +81,7 @@ func Run() {
 			panic(err)
 		}
 		GracePushFront(&queueConsumerShutDown{})
+		logs.Trace("Queue Consumer Running.")
 	}
 
 

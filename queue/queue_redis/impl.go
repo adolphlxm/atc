@@ -6,10 +6,10 @@ import (
 
 	"github.com/adolphlxm/atc/queue"
 	"github.com/adolphlxm/atc/queue/message"
+	"github.com/adolphlxm/atc/queue/util"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/golang/protobuf/proto"
-    "github.com/adolphlxm/atc/queue/util"
 )
 
 var (
@@ -76,7 +76,9 @@ func (d *redisQueueConn) Publish(subject string, msg *message.Message) error {
 	}
 	c.Send("PUBLISH", subject, buf)
 	c.Flush()
-	return c.Err()
+	err = c.Err()
+	c.Close()
+	return err
 }
 
 func (d *redisQueueConn) Subscribe(subject, group string) (queue.Subscriber, error) {
@@ -92,11 +94,45 @@ func (d *redisQueueConn) Subscribe(subject, group string) (queue.Subscriber, err
 	return &redisSubscriber{pbConn: psC, subject: subject}, err
 }
 
+func (d *redisQueueConn) Enqueue(subject string, msg *message.Message) error {
+	msg.MessageId = util.GenMsgID()
+	c, err := d.peekAvailableConn()
+	if err != nil {
+		return err
+	}
+
+	buf, err := proto.Marshal(msg)
+	if err != nil {
+		c.Close()
+		return err
+	}
+	c.Send("LPUSH", subject, buf)
+	c.Flush()
+	err = c.Err()
+	c.Close()
+	return err
+}
+
 func (d *redisQueueConn) Request(subject string, req *message.RpcMessage, timeout time.Duration) (*message.RpcMessage, error) {
 	return nil, ErrNotIMPL
 }
 
 func (d *redisQueueConn) RpcHandle(subject, group string, handler queue.RpcHandler) {
+}
+
+func (d *redisQueueConn) Dequeue(subject, group string, timeout time.Duration) (*message.Message, error) {
+	c, err := d.peekAvailableConn()
+	if err != nil {
+		return nil, err
+	}
+	buf, err := redis.ByteSlices(c.Do("BRPOP", subject, int(timeout.Nanoseconds()/int64(time.Second))))
+	if err != nil {
+		return nil, err
+	}
+	c.Close()
+	ret := &message.Message{}
+	err = proto.Unmarshal(buf[1], ret)
+	return ret, err
 }
 
 func (d *redisQueueConn) Close() error {
