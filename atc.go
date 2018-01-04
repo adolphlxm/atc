@@ -106,9 +106,7 @@ func stop() {
 		logs.Tracef("%v", sig)
 
 		switch sig {
-		case syscall.SIGTERM, syscall.SIGINT:
-			os.Exit(1)
-		case syscall.SIGQUIT:
+		case syscall.SIGQUIT,syscall.SIGTERM:
 			logs.Tracef("shutdown: start...")
 		}
 
