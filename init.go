@@ -36,12 +36,6 @@ func init() {
 	version := flag.Bool("v", false, "Use -v <current version>")
 	flag.Parse()
 
-	// Show version
-	if *version {
-		fmt.Println("ATC version", VERSION, runtime.GOOS+"/"+runtime.GOARCH)
-		os.Exit(0)
-	}
-
 	// Initialize config
 	err := ParseConfig(*configFile, *runMode)
 	if err != nil {
@@ -49,6 +43,13 @@ func init() {
 		workPath, _ = filepath.Abs(workPath)
 		fmt.Printf("workPath: %v", workPath)
 		panic(err)
+	}
+
+	// Show version
+	if *version {
+		fmt.Println("ATC version", VERSION, runtime.GOOS+"/"+runtime.GOARCH)
+		fmt.Println("APP version", AppConfig.Version())
+		os.Exit(0)
 	}
 
 	// Initialize logs

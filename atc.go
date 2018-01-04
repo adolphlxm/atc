@@ -34,7 +34,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.9.2"
+const VERSION = "0.9.3"
 
 var Route *RouterGroup
 var graceNodeTree *grace.Grace

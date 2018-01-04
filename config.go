@@ -219,3 +219,7 @@ func (a *appConfig) DefaultInt(key string, defaultVal int) int {
 	}
 	return defaultVal
 }
+
+func (a *appConfig) Version() string {
+	return a.config.String("default::version")
+}
