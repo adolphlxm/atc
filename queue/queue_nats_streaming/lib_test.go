@@ -27,20 +27,6 @@ func TestNatsStreamingQueueDriver_Open(t *testing.T) {
 	qc.Close()
 }
 
-func TestNatsStreamingQueueConn_Enqueue(t *testing.T) {
-	qc, err := queue.NewPublisher(driverName, natsPubDSN)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer qc.Close()
-
-	data := testdata.Something{Age: 10}
-	msg := &message.Message{Body: util.MustMessageBody(&data)}
-	if err = qc.Enqueue(testSubject, msg); err != nil {
-		t.Error(err)
-	}
-}
-
 func TestNatsStreamingQueueConn_Dequeue(t *testing.T) {
 	want := testdata.Something{Age: int32(rand.Uint32())}
 	msg := &message.Message{Body: util.MustMessageBody(&want)}

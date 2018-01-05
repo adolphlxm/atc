@@ -10,9 +10,9 @@ import (
 	"github.com/adolphlxm/atc/queue"
 	"github.com/adolphlxm/atc/queue/message"
 	"github.com/adolphlxm/atc/queue/util"
+	"github.com/nats-io/go-nats"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/nats-io/go-nats-streaming"
 )
 
@@ -68,6 +68,9 @@ func (c *natsStreamingQueueConn) initSubscribe(subject, group string, timeout ti
 
 	c.m.Lock()
 	if c.isSubInit == 0 {
+		c.conn.NatsConn().SetClosedHandler(func(conn *nats.Conn) {
+			close(c.ch)
+		})
 		c.sub, c.sbErr = c.conn.QueueSubscribe(
 			subject,
 			group,
@@ -98,14 +101,13 @@ func (c *natsStreamingQueueConn) Dequeue(subject, group string, timeout time.Dur
 	meta.FormMessage(ret)
 	meta.Src = natsMsg.Subject
 
-	err = ptypes.UnmarshalAny(ret.Body, dst)
+	err = util.FromMessageBody(ret.Body, dst)
 	return meta, err
 }
 
 func (c *natsStreamingQueueConn) Close() error {
 	if c.sub != nil {
 		c.sub.Close()
-		close(c.ch)
 	}
 	return c.conn.Close()
 }
