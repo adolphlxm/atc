@@ -124,7 +124,7 @@ func (c *natsQueueConn) Enqueue(subject string, msg *message.Message) error {
 	return nil
 }
 
-func (c *natsQueueConn) Dequeue(subject, group string, timeout time.Duration) (*message.Message, error) {
+func (c *natsQueueConn) Dequeue(subject, group string, timeout time.Duration, dst proto.Message) (*message.Meta, error) {
 	return nil,nil
 }
 

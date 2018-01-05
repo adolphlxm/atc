@@ -3,6 +3,9 @@ Queue Lib for ATC, internal support Redis, Nats, protobuffer etc.
 
 ## Install
   `go get github.com/adolphlxm/atc/queue`
+
+## Notice
+> driver `nats_streaming` and `nats` is not full test accept
    
 ## Usage
 

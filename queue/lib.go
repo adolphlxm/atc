@@ -22,6 +22,7 @@ type RPCResponse struct {
 }
 
 type RpcHandler func(*message.RpcMessage, *message.RpcMessage)
+type DequeueHandler func(*message.Message)
 
 type basePublisher interface {
 	Enqueue(subject string, msg *message.Message) error
@@ -39,7 +40,7 @@ type Subscriber interface {
 }
 
 type baseConsumer interface {
-	Dequeue(subject, group string, timeout time.Duration) (*message.Message, error)
+	Dequeue(subject, group string, timeout time.Duration, msg proto.Message) (*message.Meta, error)
 	Subscribe(subject, group string) (Subscriber, error)
 	RpcHandle(subject, group string, handler RpcHandler)
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 )
 
 var (
@@ -118,21 +119,31 @@ func (d *redisQueueConn) Request(subject string, req *message.RpcMessage, timeou
 }
 
 func (d *redisQueueConn) RpcHandle(subject, group string, handler queue.RpcHandler) {
+	panic(ErrNotIMPL)
 }
 
-func (d *redisQueueConn) Dequeue(subject, group string, timeout time.Duration) (*message.Message, error) {
+func (d *redisQueueConn) Dequeue(subject, group string, timeout time.Duration, dst proto.Message) (*message.Meta, error) {
 	c, err := d.peekAvailableConn()
 	if err != nil {
 		return nil, err
 	}
 	buf, err := redis.ByteSlices(c.Do("BRPOP", subject, int(timeout.Nanoseconds()/int64(time.Second))))
 	if err != nil {
+		c.Close()
 		return nil, err
 	}
 	c.Close()
+
+	meta := &message.Meta{}
 	ret := &message.Message{}
-	err = proto.Unmarshal(buf[1], ret)
-	return ret, err
+	if err = proto.Unmarshal(buf[1], ret); err != nil {
+		return nil, err
+	}
+	meta.FormMessage(ret)
+	meta.Src = string(buf[1])
+
+	err = ptypes.UnmarshalAny(ret.Body, dst)
+	return meta, err
 }
 
 func (d *redisQueueConn) Close() error {
