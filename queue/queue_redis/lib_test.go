@@ -106,33 +106,28 @@ func TestRedisQueueConn_Enqueue(t *testing.T) {
 	}
 }
 
-
 func TestRedisQueueConn_Dequeue(t *testing.T) {
 
-    TestRedisQueueConn_Enqueue(t)
+	TestRedisQueueConn_Enqueue(t)
 
-    qc, _ := queue.NewConsumer(driverName, redisDSN)
+	qc, _ := queue.NewConsumer(driverName, redisDSN)
 
-    defer qc.Close()
-    want := &testdata.Something{
-        Name: "something",
-        Age:  11,
-    }
+	defer qc.Close()
+	want := &testdata.Something{
+		Name: "something",
+		Age:  11,
+	}
 
-    gotBuffer, err :=  qc.Dequeue(testSubject, "test",  10*time.Second)
-    if err != nil {
-        t.Fatal(err)
-    }
+	got := testdata.Something{}
+	_, err := qc.Dequeue(testSubject, "test", 10*time.Second, &got)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    got := testdata.Something{}
-    if err := ptypes.UnmarshalAny(gotBuffer.Body, &got); err != nil {
-        t.Fatal(err)
-    }
-
-    if want.Name != got.Name {
-        t.Errorf("want %s, got %s", want.Name, got.Name)
-    }
-    if want.Age != got.Age {
-        t.Errorf("want %v, got %v", want.Age, got.Age)
-    }
+	if want.Name != got.Name {
+		t.Errorf("want %s, got %s", want.Name, got.Name)
+	}
+	if want.Age != got.Age {
+		t.Errorf("want %v, got %v", want.Age, got.Age)
+	}
 }
