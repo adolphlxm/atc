@@ -9,19 +9,9 @@ import (
 	"os"
 	"sync/atomic"
 	"time"
-
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 )
 
-func MustMessageBody(m proto.Message) *any.Any {
-	r, err := ptypes.MarshalAny(m)
-	if err != nil {
-		panic(err)
-	}
-	return r
-}
+
 
 var (
 	pid          = os.Getpid()

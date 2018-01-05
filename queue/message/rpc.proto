@@ -3,13 +3,11 @@ syntax = "proto3";
 
 package message;
 
-import "google/protobuf/any.proto";
-
 message RpcMessage {
     reserved 4 to 15;               // 保留序号
 
     string MessageId = 1;           // 消息ID
     uint32 Code = 2;                // 错误码
     map<string,string> options = 100; // 消息选项
-    google.protobuf.Any Body = 3;                 // 消息具体内容
+    bytes Body = 3;                 // 消息具体内容
 }

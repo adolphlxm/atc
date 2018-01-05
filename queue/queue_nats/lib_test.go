@@ -10,7 +10,6 @@ import (
 	"github.com/adolphlxm/atc/queue/testdata"
 	"github.com/adolphlxm/atc/queue/util"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/nats-io/go-nats"
 )
 
@@ -53,7 +52,7 @@ func TestNewPublisher(t *testing.T) {
 			t.Error(err)
 		}
 		got := testdata.Something{}
-		if err := ptypes.UnmarshalAny(m.Body, &got); err != nil {
+		if err := util.FromMessageBody(m.Body, &got); err != nil {
 			t.Error(err)
 		}
 		if msg.MessageId != m.MessageId {
@@ -189,7 +188,7 @@ func TestNatsQueueConn_RPCHandler(t *testing.T) {
 
 	c.RpcHandle(rpcSubject, "test", func(request *message.RpcMessage, response *message.RpcMessage) {
 		response.Code = 0
-		response.Body = &(*wrappedRsq)
+		response.Body = wrappedRsq
 	})
 
 	// create a rpc request
@@ -207,7 +206,7 @@ func TestNatsQueueConn_RPCHandler(t *testing.T) {
 		t.Errorf("Publisher Request id want %#x, got %#x", reqMsg.MessageId, got.MessageId)
 	}
 	gotData := testdata.Something{}
-	if err = ptypes.UnmarshalAny(got.Body, &gotData); err != nil {
+	if err = util.FromMessageBody(got.Body, &gotData); err != nil {
 		t.Fatalf("Publisher Request Unmarshal Body err: %v", err)
 	}
 

@@ -10,7 +10,6 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 )
 
 var (
@@ -142,7 +141,7 @@ func (d *redisQueueConn) Dequeue(subject, group string, timeout time.Duration, d
 	meta.FormMessage(ret)
 	meta.Src = string(buf[1])
 
-	err = ptypes.UnmarshalAny(ret.Body, dst)
+	err = proto.Unmarshal(ret.Body, dst)
 	return meta, err
 }
 

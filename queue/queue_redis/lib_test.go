@@ -9,8 +9,6 @@ import (
 	_ "github.com/adolphlxm/atc/queue/queue_redis"
 	"github.com/adolphlxm/atc/queue/testdata"
 	"github.com/adolphlxm/atc/queue/util"
-
-	"github.com/golang/protobuf/ptypes"
 )
 
 const (
@@ -51,7 +49,7 @@ func TestNewPublisher(t *testing.T) {
 			t.Error(err)
 		}
 		got := testdata.Something{}
-		if err := ptypes.UnmarshalAny(m.Body, &got); err != nil {
+		if err := util.FromMessageBody(m.Body, &got); err != nil {
 			t.Error(err)
 		}
 		if msg.MessageId != m.MessageId {
