@@ -36,6 +36,7 @@ import (
 // ATC framework version.
 const VERSION = "0.9.3"
 
+var APPVERSION string
 var Route *RouterGroup
 var graceNodeTree *grace.Grace
 var QueuePublisher queue.Publisher
