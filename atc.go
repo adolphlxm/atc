@@ -85,11 +85,6 @@ func Run() {
 		logs.Trace("Queue Consumer Running.")
 	}
 
-	// If support ORM
-	if Aconfig.OrmSupport {
-		RunOrms()
-	}
-
 	logs.Tracef("Process PID for %d", os.Getpid())
 
 	stop()

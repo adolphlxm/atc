@@ -87,5 +87,11 @@ func init() {
 	ThriftRPC.Debug(Aconfig.ThriftDebug)
 	ThriftRPC.Factory(Aconfig.ThriftProtocol, Aconfig.ThriftTransport)
 	ThriftRPC.Timeout(Aconfig.ThriftClientTimeout)
+
+	// If support ORM
+	// Initalize 
+	if Aconfig.OrmSupport {
+		RunOrms()
+	}
 }
 
