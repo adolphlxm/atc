@@ -3,7 +3,7 @@
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Thrift RPC, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-当前版本: 0.9.1 (Beta 2017-12-28)
+当前版本: 0.9.4 (Beta 2018-01-11)
 
 ## 安装ATC
 
@@ -269,8 +269,7 @@ func init() {
 * 返回 `orm interface ` 接口
 
 ```go
-    orm := atc.RunOrms()
-    orm.Use("库名").Where("id=?",1).Get(...)
+    atc.Dbs.Use("库名").Where("id=?",1).Get(...)
 ```
 
 ## 日志处理
@@ -391,6 +390,8 @@ func init() {
     - 增加客户端顺序平滑退出接口
     - 优化logs包，日志写入缓冲区，定时刷新缓存区到磁盘(也可以退出程序时，调用logs.Flush()方法主动刷取)及配置文件
     - 增加了queue队列封装包
+* 2018.1
+    - ATC框架管理orm初始化实例
 
 ## 即将支持特性(待定稿)
 

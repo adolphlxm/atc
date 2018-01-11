@@ -10,6 +10,8 @@ import (
 	_ "github.com/adolphlxm/atc/orm/xorm"
 )
 
+var Dbs orm.Orm
+
 type OrmConfig struct {
 	Driver   string `json:"driver"`
 	Host     string `json:"host"`
@@ -19,7 +21,7 @@ type OrmConfig struct {
 	LogLevel string `json:"loglevel"`
 }
 
-func RunOrms() (dbs orm.Orm) {
+func RunOrms() {
 	var (
 		maxidleconns int
 		maxopenconns int
@@ -29,7 +31,7 @@ func RunOrms() (dbs orm.Orm) {
 	maxopenconns = AppConfig.DefaultInt("orm.maxopenconns", 0)
 	pingtime = AppConfig.DefaultInt("orm.pingtime", 0)
 
-	dbs, _ = orm.NewOrm("xorm")
+	Dbs, _ = orm.NewOrm("xorm")
 	for _, aliasname := range Aconfig.OrmAliasNames {
 		keyPerfix := "orm." + aliasname
 		cfg, err := newEngineConfig(keyPerfix)
@@ -47,15 +49,15 @@ func RunOrms() (dbs orm.Orm) {
 			pingtime = apingtime
 		}
 
-		if err := dbs.Open(aliasname, cfg); err != nil {
+		if err := Dbs.Open(aliasname, cfg); err != nil {
 			panic(err)
 		}
-		dbs.Debug(aliasname, Aconfig.Debug)
-		dbs.SetMaxIdleConns(aliasname, maxidleconns)
-		dbs.SetMaxOpenConns(aliasname, maxopenconns)
+		Dbs.Debug(aliasname, Aconfig.Debug)
+		Dbs.SetMaxIdleConns(aliasname, maxidleconns)
+		Dbs.SetMaxOpenConns(aliasname, maxopenconns)
 
 		// Check orm connection
-		go timerTask(aliasname, int64(pingtime), dbs)
+		go timerTask(aliasname, int64(pingtime), Dbs)
 	}
 
 	return

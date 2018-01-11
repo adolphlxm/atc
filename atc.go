@@ -34,7 +34,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.9.3"
+const VERSION = "0.9.4"
 
 var APPVERSION string
 var Route *RouterGroup
@@ -85,6 +85,10 @@ func Run() {
 		logs.Trace("Queue Consumer Running.")
 	}
 
+	// If support ORM
+	if Aconfig.OrmSupport {
+		RunOrms()
+	}
 
 	logs.Tracef("Process PID for %d", os.Getpid())
 
