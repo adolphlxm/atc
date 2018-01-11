@@ -269,7 +269,7 @@ func init() {
 * 返回 `orm interface ` 接口
 
 ```go
-    atc.Dbs.Use("库名").Where("id=?",1).Get(...)
+    atc.DB("库名").Where("id=?",1).Get(...)
 ```
 
 ## 日志处理
