@@ -43,23 +43,47 @@ func init() {
 		os.Exit(0)
 	}
 
-	// Initialize config
-	err := ParseConfig(*configFile, *runMode)
+	// 1. Initialize config
+	initConfig(*configFile, *runMode)
+
+	// 2. Initialize logs
+	initLogs()
+
+	// 3. Initializes error
+	initError()
+
+	// 4. Initialize app serve
+	HttpAPP = NewApp()
+
+	// 5. Initalize thrift serve
+	initThriftServe()
+
+	// 6. Initalize orms
+	if Aconfig.OrmSupport {
+		RunOrms()
+	}
+}
+
+// Initialize config.
+func initConfig(configFile, runMode string){
+	err := ParseConfig(configFile, runMode)
 	if err != nil {
 		workPath, _ := os.Getwd()
 		workPath, _ = filepath.Abs(workPath)
 		fmt.Printf("workPath: %v", workPath)
 		panic(err)
 	}
+}
 
-	// Initialize logs
+// Initialize logs.
+func initLogs(){
 	logFile := &logs.File{
 		LogDir:        AppConfig.DefaultString("log.dir", ""),
 		MaxSize:       uint64(AppConfig.DefaultInt("log.maxsize", 0)),
 		Buffersize:    AppConfig.DefaultInt("log.buffersize", 0),
 		FlushInterval: uint64(AppConfig.DefaultInt("log.flushinterval", 0)),
 	}
-	err = logs.SetLogger(Aconfig.LogOutput, logFile)
+	err := logs.SetLogger(Aconfig.LogOutput, logFile)
 	if err != nil {
 		panic(err)
 	}
@@ -69,29 +93,23 @@ func init() {
 	} else {
 		logs.SetLevel(Aconfig.LogLevel)
 	}
+}
 
-	// Initializes error
+// Initialize error file.
+func initError(){
 	ErrorCode = NewErrorMap()
 	// In the conf/error. Ini file parsing error code
-	err = ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
+	err := ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
 	if err != nil {
 		logs.Errorf("Error file loading err:%v", err.Error())
 	}
+}
 
-	// Initialize app serve
-	HttpAPP = NewApp()
-
-	// Initalize thrift serve
+// Initalize thrift serve
+func initThriftServe(){
 	addr := Aconfig.ThriftAddr + ":" + Aconfig.ThriftPort
 	ThriftRPC = thrift.NewThriftServe(`{"addr":"` + addr + `","secure":"` + Aconfig.ThriftSecure + `"}`)
 	ThriftRPC.Debug(Aconfig.ThriftDebug)
 	ThriftRPC.Factory(Aconfig.ThriftProtocol, Aconfig.ThriftTransport)
 	ThriftRPC.Timeout(Aconfig.ThriftClientTimeout)
-
-	// If support ORM
-	// Initalize 
-	if Aconfig.OrmSupport {
-		RunOrms()
-	}
 }
-
