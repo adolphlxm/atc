@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"github.com/adolphlxm/atc/logs"
 )
 
 var (
@@ -184,5 +185,16 @@ func (res *Error) JSON() {
 		websocket.JSON.Send(res.ctx.WS, res.error)
 	default:
 
+	}
+}
+
+
+// Initialize error file.
+func initError(){
+	ErrorCode = NewErrorMap()
+	// In the conf/error. Ini file parsing error code
+	err := ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
+	if err != nil {
+		logs.Errorf("Error file loading err:%v", err.Error())
 	}
 }

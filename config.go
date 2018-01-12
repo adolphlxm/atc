@@ -2,6 +2,9 @@ package atc
 
 import (
 	"github.com/lxmgo/config"
+	"os"
+	"path/filepath"
+	"fmt"
 )
 
 var (
@@ -218,4 +221,15 @@ func (a *appConfig) DefaultInt(key string, defaultVal int) int {
 		return b
 	}
 	return defaultVal
+}
+
+// Initialize config.
+func initConfig(configFile, runMode string){
+	err := ParseConfig(configFile, runMode)
+	if err != nil {
+		workPath, _ := os.Getwd()
+		workPath, _ = filepath.Abs(workPath)
+		fmt.Printf("workPath: %v", workPath)
+		panic(err)
+	}
 }

@@ -20,14 +20,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
 
-	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/rpc/thrift"
+	"github.com/adolphlxm/atc/cache"
 )
 
 var ThriftRPC thrift.Thrift
+var aCache map[string] cache.Cache
 
 func init() {
 	// Parsing configuration environment
@@ -61,47 +61,6 @@ func init() {
 	// 6. Initalize orms
 	if Aconfig.OrmSupport {
 		RunOrms()
-	}
-}
-
-// Initialize config.
-func initConfig(configFile, runMode string){
-	err := ParseConfig(configFile, runMode)
-	if err != nil {
-		workPath, _ := os.Getwd()
-		workPath, _ = filepath.Abs(workPath)
-		fmt.Printf("workPath: %v", workPath)
-		panic(err)
-	}
-}
-
-// Initialize logs.
-func initLogs(){
-	logFile := &logs.File{
-		LogDir:        AppConfig.DefaultString("log.dir", ""),
-		MaxSize:       uint64(AppConfig.DefaultInt("log.maxsize", 0)),
-		Buffersize:    AppConfig.DefaultInt("log.buffersize", 0),
-		FlushInterval: uint64(AppConfig.DefaultInt("log.flushinterval", 0)),
-	}
-	err := logs.SetLogger(Aconfig.LogOutput, logFile)
-	if err != nil {
-		panic(err)
-	}
-
-	if Aconfig.Debug {
-		logs.SetLevel(logs.LevelDebug)
-	} else {
-		logs.SetLevel(Aconfig.LogLevel)
-	}
-}
-
-// Initialize error file.
-func initError(){
-	ErrorCode = NewErrorMap()
-	// In the conf/error. Ini file parsing error code
-	err := ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
-	if err != nil {
-		logs.Errorf("Error file loading err:%v", err.Error())
 	}
 }
 
