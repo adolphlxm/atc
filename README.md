@@ -3,7 +3,7 @@
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Thrift RPC, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-当前版本: 0.9.4 (Beta 2018-01-11)
+当前版本: 0.9.5 (Beta 2018-01-15)
 
 ## 安装ATC
 
@@ -270,6 +270,17 @@ func init() {
 
 ```go
     atc.DB("库名").Where("id=?",1).Get(...)
+```
+
+## Cache
+* 通过`app.ini`配置redis,memcache
+
+``` go
+atc.GetCache("别名").Put()
+atc.GetCache("别名").Put()
+atc.GetCache("别名").Get()
+atc.GetCache("别名").Delete()
+...
 ```
 
 ## 日志处理

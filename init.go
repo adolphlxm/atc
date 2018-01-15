@@ -23,11 +23,9 @@ import (
 	"runtime"
 
 	"github.com/adolphlxm/atc/rpc/thrift"
-	"github.com/adolphlxm/atc/cache"
 )
 
 var ThriftRPC thrift.Thrift
-var aCache map[string] cache.Cache
 
 func init() {
 	// Parsing configuration environment
@@ -61,6 +59,11 @@ func init() {
 	// 6. Initalize orms
 	if Aconfig.OrmSupport {
 		RunOrms()
+	}
+
+	// 7. Initalize cache
+	if c := AppConfig.DefaultBool("cache.support", false); c {
+		RunCaches()
 	}
 }
 
