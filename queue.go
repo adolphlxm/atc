@@ -33,12 +33,11 @@ func (this *QueueConsumerShutDown) Stop() error{
 
 func RunQueuePublisher() {
 	queuePublisher = make(map[string]QueuePblisherShutDown, 0)
-	aliasnames := AppConfig.Strings("queue.aliasnames")
-
+	aliasnames := AppConfig.Strings("queue.publisher.aliasnames")
 	for _, aliasname := range aliasnames {
 		keyPerfix := "queue.publisher." + aliasname + "."
 		addrs := AppConfig.String(keyPerfix + "addrs")
-		drivername := AppConfig.String(keyPerfix + "drivername")
+		drivername := AppConfig.String(keyPerfix + "driver")
 		publisher, err := queue.NewPublisher(drivername, addrs)
 		if err != nil {
 			logs.Errorf("queue.publisher: aliasname:%s, NewPublisher err:%s", aliasname, err.Error())
@@ -54,12 +53,12 @@ func RunQueuePublisher() {
 
 func RunQueueConsumer() {
 	queueConsumer = make(map[string]QueueConsumerShutDown, 0)
-	aliasnames := AppConfig.Strings("queue.aliasnames")
+	aliasnames := AppConfig.Strings("queue.consumer.aliasnames")
 
 	for _, aliasname := range aliasnames {
 		keyPerfix := "queue.consumer." + aliasname + "."
 		addrs := AppConfig.String(keyPerfix + "addrs")
-		drivername := AppConfig.String(keyPerfix + "drivername")
+		drivername := AppConfig.String(keyPerfix + "driver")
 		consumer, err := queue.NewConsumer(drivername, addrs)
 		if err != nil {
 			logs.Errorf("queue.consumer: aliasname:%s, NewPublisher err:%s", aliasname, err.Error())
