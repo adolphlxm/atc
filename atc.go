@@ -26,7 +26,6 @@ import (
 
 	"github.com/adolphlxm/atc/logs"
 	"github.com/adolphlxm/atc/grace"
-	"github.com/adolphlxm/atc/queue"
 	_ "github.com/adolphlxm/atc/queue/queue_redis"
 	_ "github.com/adolphlxm/atc/queue/queue_nats"
 )
@@ -37,8 +36,6 @@ const VERSION = "0.9.5"
 var APPVERSION string
 var Route *RouterGroup
 var graceNodeTree *grace.Grace
-var QueuePublisher queue.Publisher
-var QueueConsumer queue.Consumer
 
 // Running :
 //	1. ORM
@@ -63,24 +60,6 @@ func Run() {
 	if Aconfig.HTTPSupport {
 		HttpAPP.Run()
 		GracePushFront(&httpShutDown{})
-	}
-
-	if Aconfig.QueuePublisherSupport {
-		QueuePublisher, err = queue.NewPublisher(Aconfig.QueuePublisherDrivername, Aconfig.QueuePublisherAddrs)
-		if err != nil {
-			panic(err)
-		}
-		GracePushFront(&queuePublisherShutDown{})
-		logs.Trace("Queue Publisher Running.")
-	}
-
-	if Aconfig.QueueConsumerSupport {
-		QueueConsumer, err = queue.NewConsumer(Aconfig.QueueConsumerDrivername, Aconfig.QueueConsumerAddrs)
-		if err != nil {
-			panic(err)
-		}
-		GracePushFront(&queueConsumerShutDown{})
-		logs.Trace("Queue Consumer Running.")
 	}
 
 	logs.Tracef("Process PID for %d", os.Getpid())
