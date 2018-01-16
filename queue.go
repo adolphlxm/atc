@@ -33,7 +33,7 @@ func (this *QueueConsumerShutDown) Stop() error{
 
 func RunQueuePublisher() {
 	queuePublisher = make(map[string]QueuePblisherShutDown, 0)
-	aliasnames := AppConfig.Strings("cache.aliasnames")
+	aliasnames := AppConfig.Strings("queue.aliasnames")
 
 	for _, aliasname := range aliasnames {
 		keyPerfix := "queue.publisher." + aliasname + "."
@@ -54,7 +54,7 @@ func RunQueuePublisher() {
 
 func RunQueueConsumer() {
 	queueConsumer = make(map[string]QueueConsumerShutDown, 0)
-	aliasnames := AppConfig.Strings("cache.aliasnames")
+	aliasnames := AppConfig.Strings("queue.aliasnames")
 
 	for _, aliasname := range aliasnames {
 		keyPerfix := "queue.consumer." + aliasname + "."
