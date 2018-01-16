@@ -72,19 +72,3 @@ func (this *thriftShutDown) Stop() error {
 	logs.Tracef("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
 	return err
 }
-
-type queuePublisherShutDown struct{}
-func (this *queuePublisherShutDown) ModuleID() string {
-	return "queuePublisher"
-}
-func (this *queuePublisherShutDown) Stop() error {
-	return QueuePublisher.Close()
-}
-
-type queueConsumerShutDown struct {}
-func (this *queueConsumerShutDown) ModuleID() string {
-	return "queueConsumer"
-}
-func (this *queueConsumerShutDown) Stop() error {
-	return QueueConsumer.Close()
-}

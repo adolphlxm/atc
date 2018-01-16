@@ -65,6 +65,16 @@ func init() {
 	if c := AppConfig.DefaultBool("cache.support", false); c {
 		RunCaches()
 	}
+
+	// 8. Initalize queue publisher
+	if Aconfig.QueuePublisherSupport {
+		RunQueuePublisher()
+	}
+
+	// 9. Initalize queue consumer
+	if Aconfig.QueueConsumerSupport {
+		RunQueueConsumer()
+	}
 }
 
 // Initalize thrift serve
