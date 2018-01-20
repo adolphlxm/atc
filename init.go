@@ -75,6 +75,11 @@ func init() {
 	if Aconfig.QueueConsumerSupport {
 		RunQueueConsumer()
 	}
+
+	// 10. Initalize mongodb
+	if Aconfig.MgoSupport {
+		RunMgoDBs()
+	}
 }
 
 // Initalize thrift serve

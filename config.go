@@ -61,6 +61,9 @@ type Config struct {
 	// queue
 	QueuePublisherSupport bool
 	QueueConsumerSupport bool
+
+	// mongodb
+	MgoSupport bool
 }
 
 // Parsing the configuration
@@ -111,6 +114,8 @@ func ParseConfig(confName, runmode string) error {
 
 		QueuePublisherSupport: false,
 		QueueConsumerSupport:false,
+
+		MgoSupport: false,
 	}
 
 	if runmode != "" {
@@ -154,6 +159,8 @@ func ParseConfig(confName, runmode string) error {
 
 	Aconfig.QueuePublisherSupport = AppConfig.DefaultBool("queue.publisher.support", Aconfig.QueuePublisherSupport)
 	Aconfig.QueueConsumerSupport = AppConfig.DefaultBool("queue.consumer.support", Aconfig.QueueConsumerSupport)
+
+	Aconfig.MgoSupport = AppConfig.DefaultBool("mgo.support", Aconfig.MgoSupport)
 	return nil
 }
 

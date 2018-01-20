@@ -3,7 +3,7 @@
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Thrift RPC, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-当前版本: 0.9.5 (Beta 2018-01-15)
+当前版本: 0.9.6 (Beta 2018-01-20)
 
 ## 安装ATC
 
@@ -201,33 +201,30 @@ atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
 * queue.publisher.support
     - 参数：true | false
     - 注释：是否支持开启生产实例
-* queue.publisher.drivername
+* queue.publisher.`aliasnames`
+    - 参数: 别名,逗号隔开,如:p1,p2...
+    - 注释：用来初始化多实例
+* queue.publisher.`[aliasname]`.driver
     - 参数: redis | nats
     - 注释：支持的队列驱动
-* queue.publisher.addrs
+* queue.publisher.`[aliasname]`.addrs
     - 参数：redis://127.0.0.1:6379
     - 注释：redis连接地址
 * queue.consumer.support
     - 参数：true | false
     - 注释：是否支持开启消费者实例
-* queue.consumer.drivername
-    - 参数: redis | nats
-    - 注释：支持的队列驱动
-* queue.consumer.addrs
-    - 参数：redis://127.0.0.1:6379
-    - 注释：redis连接地址
 
 **使用方法**
 
 ```go
 // Publisher
-atc.QueuePublisher.Publish("subject", &message.Message{
+atc.GetPublisher("aliasname").Publish("subject", &message.Message{
     Body: util.MustMessageBody(nil, /* point to your protobuffer struct */ ),
 })
 
 
 // Consumer
-sub,_ := atc.QueueConsumer.Subscribe("subject", "cluster-group")
+sub,_ := atc.GetPublisher("aliasname").Subscribe("subject", "cluster-group")
 msg, _ := sub.NextMessage(time.Second)
 // logic for msg
 ```
@@ -265,7 +262,7 @@ func init() {
 **gRPC...**
 
 ## ORM
-* atc包提供的RunOrms是通过`app.ini`配置文件加载多库初始化方法
+* 通过`app.ini`配置文件加载多库初始化方法
 * 返回 `orm interface ` 接口
 
 ```go
@@ -281,6 +278,13 @@ atc.GetCache("别名").Put()
 atc.GetCache("别名").Get()
 atc.GetCache("别名").Delete()
 ...
+```
+
+## Mongodb
+* 通过`app.ini`配置文件加载多库初始化方法
+
+```go
+    atc.GetMgoDB("别名").Insert()
 ```
 
 ## 日志处理
@@ -403,6 +407,9 @@ atc.GetCache("别名").Delete()
     - 增加了queue队列封装包
 * 2018.1
     - ATC框架管理orm初始化实例
+    - 增加cache,queue多实例管理
+    - 增加mongodb封装，多实例管理
+    - 优化初始化
 
 ## 即将支持特性(待定稿)
 
