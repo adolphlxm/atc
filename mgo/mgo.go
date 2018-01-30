@@ -25,6 +25,10 @@ func (this *MgoDB) Close() {
 	this.session.Close()
 }
 
+func (this *MgoDB) Session() *mgo.Session {
+	return this.session
+}
+
 func (this *MgoDB) open(addrs string) error {
 	dialInfo, err := mgo.ParseURL(addrs)
 	if err != nil {

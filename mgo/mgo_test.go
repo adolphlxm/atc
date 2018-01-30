@@ -26,7 +26,7 @@ func TestMgoDB_Insert(t *testing.T) {
 	initMgo()
 
 	data := &Data{A:1,B:"atc"}
-	err := M.Insert("test1", "test1", data)
+	err := M.Session().DB("test1").C("test1").Insert("test1", "test1", data)
 	if err != nil {
 		t.Error(err)
 	}

@@ -155,6 +155,19 @@ atc.AddRouter("api.{id}",&api.IndexHandler{})
 atc.AddRouter("api.{name:[\w]+}",&api.IndexHandler{})
 ```
 
+**Context接参方法**
+* Param() 接收URL正则参数
+    - context.Param() 返回string
+    - context.ParamInt() 返回int
+    - context.ParamInt64() 返回int64
+    - context.ParamUint64() 返回uint64
+* Query() 接收Form表单参数
+    - context.Query() 返回string
+    - context.QueryInt() 返回int
+    - context.QueryInt64() 返回int64
+    - context.QueryUint64() 返回uint64
+    - context.QueryStrings() 返回[]string
+
 ## 顺序平滑退出
 
 使用双向链表list实现
