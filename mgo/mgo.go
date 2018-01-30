@@ -26,7 +26,7 @@ func (this *MgoDB) Close() {
 }
 
 func (this *MgoDB) Session() *mgo.Session {
-	return this.Clone().session
+	return this.session
 }
 
 func (this *MgoDB) open(addrs string) error {
