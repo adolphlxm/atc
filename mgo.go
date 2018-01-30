@@ -26,5 +26,5 @@ func RunMgoDBs() {
 }
 
 func GetMgoDB(aliasname string) *mgo.MgoDB {
-	return mgoDBs[aliasname]
+	return mgoDBs[aliasname].Clone()
 }
