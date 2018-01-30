@@ -37,10 +37,11 @@ func (a *App) Run() {
 
 	//appRun := make(chan bool, 1)
 	//TODO https server
-
+	end := make(chan struct{})
 	//http server
 	go func() {
 		logs.Tracef("HTTP server Running on %v", addr)
+		close(end)
 		// ListenAndServe listens on the TCP network address srv.Addr and then
 		// calls Serve to handle requests on incoming connections.
 		err := a.Server.ListenAndServe()
@@ -49,4 +50,6 @@ func (a *App) Run() {
 			time.Sleep(500 * time.Microsecond)
 		}
 	}()
+
+	<-end
 }
