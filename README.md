@@ -279,26 +279,44 @@ func init() {
 * 返回 `orm interface ` 接口
 
 ```go
-    atc.DB("库名").Where("id=?",1).Get(...)
+    atc.DB("aliasname").Where("id=?",1).Get(...)
 ```
 
 ## Cache
 * 通过`app.ini`配置redis,memcache
 
 ``` go
-atc.GetCache("别名").Put()
-atc.GetCache("别名").Put()
-atc.GetCache("别名").Get()
-atc.GetCache("别名").Delete()
+atc.GetCache("aliasname").Put()
+atc.GetCache("aliasname").Put()
+atc.GetCache("aliasname").Get()
+atc.GetCache("aliasname").Delete()
 ...
 ```
 
 ## Mongodb
 * 通过`app.ini`配置文件加载多库初始化方法
+* Collection操作均是session Clone() ，调用方法均已进行了 Close()
 
 ```go
-    atc.GetMgoDB("别名").Insert()
+    // 快速使用Collection，均已进行了Close()放心使用
+    atc.GetMgoDB("aliasname").Insert(name,col,data)
+    atc.GetMgoDB("aliasname").Update(name,col,selector)
+    ...
+    // 快速使用Find，均已进行了Close()放心使用
+    atc.GetMgoDB("aliasname").Find(name,col, query).One()
+    atc.GetMgoDB("aliasname").Find(name,col, query).All()
+    ...
 ```
+
+```go
+    // Query
+    q := atc.GetMgoDB("aliasname").Find().Query()
+    q.One()
+    // 注意，此时需要关闭session
+    q.Close()
+    ...
+```
+
 
 ## 日志处理
 **通过`app.ini`配置日志输出引擎**
