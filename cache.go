@@ -7,7 +7,6 @@ import (
 	_ "github.com/adolphlxm/atc/cache/memcache"
 	_ "github.com/adolphlxm/atc/cache/redis"
 	"github.com/adolphlxm/atc/logs"
-	"fmt"
 )
 
 var aCache map[string]cache.Cache
