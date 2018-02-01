@@ -296,6 +296,8 @@ atc.GetCache("aliasname").Delete()
 ## Mongodb
 * 通过`app.ini`配置文件加载多库初始化方法
 * Collection操作均是session Clone() ，调用方法均已进行了 Close()
+* 配置addrs=mongodb://127.0.0.1:27017/? 支持的参数
+
 
 ```go
     // 快速使用Collection，均已进行了Close()放心使用

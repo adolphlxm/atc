@@ -7,6 +7,7 @@ import (
 	_ "github.com/adolphlxm/atc/cache/memcache"
 	_ "github.com/adolphlxm/atc/cache/redis"
 	"github.com/adolphlxm/atc/logs"
+	"fmt"
 )
 
 var aCache map[string]cache.Cache
@@ -33,7 +34,10 @@ func RunCaches() {
 		case "redis":
 			redisAddr := addrUrl.Host
 			queryValue := addrUrl.Query()
-			password, _ := addrUrl.User.Password()
+			password := ""
+			if userInfo := addrUrl.User; userInfo != nil {
+				password, _ = addrUrl.User.Password()
+			}
 			config = `{"addr":"` + redisAddr + `","maxidle":"` + queryValue.Get("maxIdle") + `","maxactive":"` + queryValue.Get("maxActive") + `","idletimeout":"` + queryValue.Get("idleTimeout") + `","password":"` + password + `"}`
 		default:
 			continue
