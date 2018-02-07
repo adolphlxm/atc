@@ -48,22 +48,25 @@ func Run() {
 
 	// If support Thrift serve.
 	if Aconfig.ThriftSupport {
+		initThriftServe()
 		err = ThriftRPC.Run()
 		if err != nil {
 			panic(err)
 		}
-		GracePushFront(&thriftShutDown{})
-		logs.Tracef("Thrift server Running on %v", ThriftRPC.Addr())
+		GracePushBack(&thriftShutDown{})
+		logs.Tracef("thrfit: Running on %v", ThriftRPC.Addr())
 	}
 
 	// If support HTTP serve.
 	if Aconfig.HTTPSupport {
 		HttpAPP.Run()
-		GracePushFront(&httpShutDown{})
+		GracePushBack(&httpShutDown{})
 	}
 
-	logs.Tracef("Process PID for %d", os.Getpid())
+	logs.Tracef("process: PID for %d", os.Getpid())
 
+	// TODO 平滑退出顺序
+	logs.Tracef("grace: stop order -> [%s]", strings.Join(graceNodeTree.Get(), ","))
 	stop()
 }
 
@@ -80,18 +83,18 @@ func stop() {
 
 	for {
 		sig := <-sigChan
-		logs.Tracef("%v", sig)
+		logs.Tracef("signal: %v", sig)
 
 		switch sig {
 		case syscall.SIGQUIT,syscall.SIGTERM,syscall.SIGINT:
-			logs.Tracef("shutdown: start...")
+			logs.Tracef("grace: accept...")
 		default:
 			continue
 		}
 
 		// Grace exit.
 		if err := graceNodeTree.Stop(); err != nil {
-			logs.Errorf("shutdown: grace exit, err:%s", err.Error())
+			logs.Errorf("grace: stop fail err:%s", err.Error())
 			continue
 		}
 
@@ -164,4 +167,8 @@ func AddFilter(location Location, module string, filter FilterFunc) {
 
 func ExecuteHandler(httpMethod, module string, c *Handler) {
 	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
+}
+
+func SetAppVersion(version string) {
+	APPVERSION = version
 }

@@ -18,13 +18,14 @@ func testAllLevel(l *AtcLogger) {
 	l.Noticef("%v", "Noticef info.")
 	l.Warnf("%v", "Warnf info")
 	l.Errorf("%v", "Errorf info")
+	l.Fatalf("%v", "Fatalf info.")
 	l.Debugf("%v", "Debug info.")
 }
 
 func TestStdout(t *testing.T) {
 	l1 := NewLogger(10000)
 	l1.SetLogger(AdapterStdout)
-	l1.SetLevel(LevelTrace)
+	l1.SetLevel(LevelFatal)
 	testAllLevel(l1)
 	time.Sleep(1 * time.Millisecond)
 }
@@ -39,9 +40,10 @@ func TestFile(t *testing.T) {
 }
 
 func TestLogs(t *testing.T){
-	Trace("%v", "Trace info.")
-	Info("%v", "Info info.")
-	Notice("%v", "Notice info.")
-	Debug("%v", "Debug info.")
+	SetLogger("stdout")
+	Tracef("%v", "Trace info.")
+	Infof("%v", "Info info.")
+	Noticef("%v", "Notice info.")
+	Debugf("%v", "Debug info.")
 	time.Sleep(1 * time.Millisecond)
 }

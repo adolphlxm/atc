@@ -57,7 +57,7 @@ func (this *httpShutDown) ModuleID() string {
 func (this *httpShutDown) Stop() error {
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.HTTPQTimeout)*time.Second)
 	err := HttpAPP.Server.Shutdown(ctx)
-	logs.Tracef("shutdown: http, biggest waiting for %ds...", Aconfig.HTTPQTimeout)
+	logs.Tracef("grace: http, waiting for %ds to stop.", Aconfig.HTTPQTimeout)
 	time.Sleep(1 * time.Millisecond)
 	return err
 }
@@ -69,6 +69,6 @@ func (this *thriftShutDown) ModuleID() string {
 func (this *thriftShutDown) Stop() error {
 	ctx, _ := context.WithTimeout(context.Background(), time.Duration(Aconfig.ThriftQTimeout)*time.Second)
 	err := ThriftRPC.Shutdown(ctx)
-	logs.Tracef("shutdown: thrift, biggest waiting for %ds...", Aconfig.ThriftQTimeout)
+	logs.Tracef("grace: thrift, waiting for %ds to stop.", Aconfig.ThriftQTimeout)
 	return err
 }

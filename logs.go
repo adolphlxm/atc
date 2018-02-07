@@ -20,4 +20,7 @@ func initLogs(){
 	} else {
 		logs.SetLevel(Aconfig.LogLevel)
 	}
+
+	// Initializes error file.
+	initError()
 }

@@ -3,6 +3,7 @@ package grace
 import (
 	"container/list"
 	"errors"
+	"strings"
 )
 
 var err_push = errors.New("grace link table write error.")
@@ -110,6 +111,16 @@ func (this *Grace) MoveBefore(moduleID1, moduleID2 string){
 	this.list.MoveBefore(e1, e2)
 }
 
+func (this *Grace) Get() []string {
+	list := make([]string, 0)
+	for e := this.list.Back(); e != nil; e = e.Prev() {
+		nt := e.Value.(TT)
+		list = append(list, nt.ModuleID())
+	}
+
+	return list
+}
+
 func (this *Grace) findElement(moduleID string) *list.Element{
 	for e := this.list.Front(); e != nil; e = e.Next() {
 		nt := e.Value.(TT)
@@ -121,6 +132,7 @@ func (this *Grace) findElement(moduleID string) *list.Element{
 }
 
 func (this *Grace) Stop() error {
+	errs := make([]string, 0)
 	for i, n := 0, this.list.Len(); i < n; i++ {
 		e := this.list.Back()
 		if e == nil {
@@ -129,12 +141,15 @@ func (this *Grace) Stop() error {
 		nt := e.Value.(TT)
 
 		if err := nt.Stop(); err != nil {
-			// TODO 如果关闭发生错误，则继续循环关闭
-			continue
+			errs = append(errs,  "grace:[" + nt.ModuleID() + "] " + err.Error())
 		}
 
 		// Delete
 		this.list.Remove(e)
+	}
+
+	if len(errs) > 0 {
+		return errors.New(strings.Join(errs, "\n"))
 	}
 
 	return nil

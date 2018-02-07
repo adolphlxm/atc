@@ -443,6 +443,10 @@ atc.GetCache("aliasname").Delete()
     - 增加cache,queue多实例管理
     - 增加mongodb封装，多实例管理
     - 优化初始化
+* 2018.2
+    - 优化Redis、Mgo、Cache、Orm、Queue初始化及退出等日志统一输出格式
+    - 增加平滑退出顺序日志输出
+    - 修改配置文件，日志级别设置
 
 ## 即将支持特性(待定稿)
 

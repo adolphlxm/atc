@@ -17,6 +17,7 @@ func (this *QueuePblisherShutDown) ModuleID() string {
 	return this.Module
 }
 func (this *QueuePblisherShutDown) Stop() error{
+	logs.Tracef("grace: queue.publisher [%s] stop.", this.ModuleID())
 	return this.publisher.Close()
 }
 
@@ -28,6 +29,7 @@ func (this *QueueConsumerShutDown) ModuleID() string {
 	return this.Module
 }
 func (this *QueueConsumerShutDown) Stop() error{
+	logs.Tracef("grace:queue.consumer [%s] stop.", this.ModuleID())
 	return this.consumer.Close()
 }
 
@@ -38,16 +40,19 @@ func RunQueuePublisher() {
 		keyPerfix := "queue.publisher." + aliasname + "."
 		addrs := AppConfig.String(keyPerfix + "addrs")
 		drivername := AppConfig.String(keyPerfix + "driver")
+
+		logs.Tracef("queue.publisher:[%s] starting....", aliasname)
+
 		publisher, err := queue.NewPublisher(drivername, addrs)
 		if err != nil {
-			logs.Errorf("queue.publisher: aliasname:%s, NewPublisher err:%s", aliasname, err.Error())
-			continue
+			logs.Errorf("queue.publisher:[%s] start fail err:%s", aliasname, err.Error())
+			panic(err)
 		}
 
 		shutDown := QueuePblisherShutDown{publisher:publisher,Module:aliasname}
 		queuePublisher[aliasname] = shutDown
 		GracePushFront(&shutDown)
-		logs.Tracef("queue.publisher: aliasname:%s, initialization is successful.", aliasname)
+		logs.Tracef("queue.publisher:[%s] Running on %s.", aliasname, addrs)
 	}
 }
 
@@ -59,16 +64,19 @@ func RunQueueConsumer() {
 		keyPerfix := "queue.consumer." + aliasname + "."
 		addrs := AppConfig.String(keyPerfix + "addrs")
 		drivername := AppConfig.String(keyPerfix + "driver")
+
+		logs.Tracef("queue.consumer:[%s] starting....", aliasname)
+
 		consumer, err := queue.NewConsumer(drivername, addrs)
 		if err != nil {
-			logs.Errorf("queue.consumer: aliasname:%s, NewPublisher err:%s", aliasname, err.Error())
-			continue
+			logs.Errorf("queue.consumer:[%s] start fail err:%s", aliasname, err.Error())
+			panic(err)
 		}
 
 		shutDown := QueueConsumerShutDown{consumer:consumer,Module:aliasname}
 		queueConsumer[aliasname] = shutDown
 		GracePushFront(&shutDown)
-		logs.Tracef("queue.consumer: aliasname:%s, initialization is successful.", aliasname)
+		logs.Tracef("queue.consumer:[%s] Running on %s.", aliasname, addrs)
 	}
 }
 
