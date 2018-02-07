@@ -447,6 +447,7 @@ atc.GetCache("aliasname").Delete()
     - 优化Redis、Mgo、Cache、Orm、Queue初始化及退出等日志统一输出格式
     - 增加平滑退出顺序日志输出
     - 修改配置文件，日志级别设置
+    - 优化加载配置
 
 ## 即将支持特性(待定稿)
 

@@ -31,7 +31,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.9.7"
+const VERSION = "0.9.8"
 
 var APPVERSION string
 var Route *RouterGroup
