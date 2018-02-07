@@ -29,8 +29,8 @@ var ThriftRPC thrift.Thrift
 
 func init() {
 	// Parsing configuration environment
-	runMode := flag.String("m", "dev", "Use -m <config mode>")
-	configFile := flag.String("c", "../conf/app.ini", "use -c <config file>")
+	runMode := flag.String("m", "local", "Use -m <config mode>")
+	configFile := flag.String("c", "./conf/app.ini", "use -c <config file>")
 	version := flag.Bool("v", false, "Use -v <current version>")
 	flag.Parse()
 
@@ -41,44 +41,38 @@ func init() {
 		os.Exit(0)
 	}
 
+	// Initialize app serve
+	HttpAPP = NewApp()
+
 	// 1. Initialize config
 	initConfig(*configFile, *runMode)
 
 	// 2. Initialize logs
 	initLogs()
 
-	// 3. Initializes error
-	initError()
-
-	// 4. Initialize app serve
-	HttpAPP = NewApp()
-
-	// 5. Initalize thrift serve
-	initThriftServe()
-
-	// 6. Initalize orms
-	if Aconfig.OrmSupport {
-		RunOrms()
-	}
-
-	// 7. Initalize cache
+	// 3. Initalize cache
 	if c := AppConfig.DefaultBool("cache.support", false); c {
 		RunCaches()
 	}
 
-	// 8. Initalize queue publisher
+	// 4. Initalize queue publisher
 	if Aconfig.QueuePublisherSupport {
 		RunQueuePublisher()
 	}
 
-	// 9. Initalize queue consumer
+	// 5. Initalize queue consumer
 	if Aconfig.QueueConsumerSupport {
 		RunQueueConsumer()
 	}
 
-	// 10. Initalize mongodb
+	// 6. Initalize mongodb
 	if Aconfig.MgoSupport {
 		RunMgoDBs()
+	}
+
+	// 7. Initalize orms
+	if Aconfig.OrmSupport {
+		RunOrms()
 	}
 }
 

@@ -3,10 +3,11 @@ package redis
 import (
 	"encoding/json"
 	"errors"
-	"github.com/adolphlxm/atc/cache"
-	"github.com/garyburd/redigo/redis"
 	"strconv"
 	"time"
+
+	"github.com/adolphlxm/atc/cache"
+	"github.com/garyburd/redigo/redis"
 )
 
 const DefaultKey = "atcCacheRedis"
@@ -133,7 +134,8 @@ func (c *Cache) connectInit() error {
 		},
 	}
 
-	return nil
+	_, err := c.Do("PING")
+	return err
 }
 
 

@@ -35,6 +35,9 @@ func RunOrms() {
 	dbs, _ = orm.NewOrm("xorm")
 	for _, aliasname := range Aconfig.OrmAliasNames {
 		keyPerfix := "orm." + aliasname
+
+		logs.Tracef("orm:[%s] starting...", aliasname)
+
 		cfg, err := newEngineConfig(keyPerfix)
 		if err != nil {
 			panic(err)
@@ -59,6 +62,8 @@ func RunOrms() {
 
 		// Check orm connection
 		go timerTask(aliasname, int64(pingtime), dbs)
+
+		logs.Tracef("orm:[%s] Running.", aliasname)
 	}
 
 	return
@@ -90,7 +95,7 @@ func timerTask(aliasname string, timeout int64, db orm.Orm) {
 			case <-t.C:
 				if err := db.Ping(aliasname); err != nil {
 					db.Clone(aliasname)
-					logs.Tracef("ATC orm: reconnection successful to %s", aliasname)
+					logs.Tracef("orm:[%s] reconnection running.", aliasname)
 				}
 				t.Reset(timeDuration * time.Second)
 			}

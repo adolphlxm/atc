@@ -195,6 +195,6 @@ func initError(){
 	// In the conf/error. Ini file parsing error code
 	err := ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
 	if err != nil {
-		logs.Errorf("Error file loading err:%v", err.Error())
+		logs.Warnf("Error file loading err:%v", err.Error())
 	}
 }

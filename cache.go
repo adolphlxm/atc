@@ -7,7 +7,6 @@ import (
 	_ "github.com/adolphlxm/atc/cache/memcache"
 	_ "github.com/adolphlxm/atc/cache/redis"
 	"github.com/adolphlxm/atc/logs"
-	"fmt"
 )
 
 var aCache map[string]cache.Cache
@@ -18,13 +17,13 @@ func RunCaches() {
 	for _, aliasname := range aliasnames {
 		keyPerfix := "cache." + aliasname + "."
 		addr := AppConfig.String(keyPerfix + "addrs")
-
+		logs.Tracef("cache:[%s] starting...", aliasname)
 		var config string
 
 		addrUrl, err := url.Parse(addr)
 		if err != nil {
-			logs.Errorf("cache: aliasname:%s,Parse addrs err:%s", aliasname, err.Error())
-			continue
+			logs.Errorf("cache:[%s] parse addrs err:%s", aliasname, err.Error())
+			panic(err)
 		}
 		drivename := addrUrl.Scheme
 
@@ -45,10 +44,11 @@ func RunCaches() {
 
 		aCache[aliasname], err = cache.NewCache(drivename, config)
 		if err != nil {
-			logs.Errorf("cache: aliasname:%s,NewCache err:%s", aliasname, err.Error())
-			continue
+			logs.Errorf("cache:[%s] start fail err:%s", aliasname, err.Error())
+			panic(err)
 		}
-		logs.Tracef("cache: aliasname:%s,initialization is successful.", aliasname)
+
+		logs.Tracef("cache:[%s] Running on %s.", aliasname, addrUrl.Host)
 	}
 }
 

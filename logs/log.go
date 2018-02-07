@@ -210,12 +210,10 @@ func (l *AtcLogger) Fatal(args ...interface{}) {
 func (l *AtcLogger) Fatalf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
 	l.Output(LevelFatal, msg)
-	os.Exit(1)
 }
 
 // Defaultlogs is the default ServeMux used by Serve.
 var defaultlogs = NewLogger(10000)
-
 func SetLogger(adapterName string, configs ...interface{}) error {
 	return defaultlogs.SetLogger(adapterName, configs...)
 }

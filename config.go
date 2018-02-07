@@ -4,7 +4,8 @@ import (
 	"github.com/lxmgo/config"
 	"os"
 	"path/filepath"
-	"fmt"
+	"github.com/adolphlxm/atc/utils"
+	"errors"
 )
 
 var (
@@ -60,7 +61,7 @@ type Config struct {
 
 	// queue
 	QueuePublisherSupport bool
-	QueueConsumerSupport bool
+	QueueConsumerSupport  bool
 
 	// mongodb
 	MgoSupport bool
@@ -76,7 +77,7 @@ func ParseConfig(confName, runmode string) error {
 	}
 
 	Aconfig = &Config{
-		Runmode:          "dev",
+		Runmode:          "local",
 		Debug:            false,
 		AppName:          "ATC",
 		HTTPAddr:         "",
@@ -113,7 +114,7 @@ func ParseConfig(confName, runmode string) error {
 		OrmAliasNames: []string{},
 
 		QueuePublisherSupport: false,
-		QueueConsumerSupport:false,
+		QueueConsumerSupport:  false,
 
 		MgoSupport: false,
 	}
@@ -149,7 +150,23 @@ func ParseConfig(confName, runmode string) error {
 	Aconfig.ThriftTransport = AppConfig.DefaultString("thrift.transport", Aconfig.ThriftTransport)
 
 	Aconfig.LogSupport = AppConfig.DefaultBool("log.support", Aconfig.LogSupport)
-	Aconfig.LogLevel = AppConfig.DefaultInt("log.level", Aconfig.LogLevel)
+	logLevel := AppConfig.DefaultString("log.level", "LevelDebug")
+	switch logLevel {
+	case "LevelFatal":
+		Aconfig.LogLevel = 0
+	case "LevelError":
+		Aconfig.LogLevel = 1
+	case "LevelWarn":
+		Aconfig.LogLevel = 2
+	case "LevelNotice":
+		Aconfig.LogLevel = 3
+	case "LevelInfo":
+		Aconfig.LogLevel = 4
+	case "LevelTrace":
+		Aconfig.LogLevel = 5
+	case "LevelDebug":
+		Aconfig.LogLevel = 6
+	}
 	Aconfig.LogOutput = AppConfig.DefaultString("log.output", Aconfig.LogOutput)
 
 	Aconfig.OrmSupport = AppConfig.DefaultBool("orm.support", Aconfig.OrmSupport)
@@ -219,12 +236,38 @@ func (a *appConfig) DefaultInt(key string, defaultVal int) int {
 }
 
 // Initialize config.
-func initConfig(configFile, runMode string){
-	err := ParseConfig(configFile, runMode)
+func initConfig(configFile, runMode string) {
+	workPath, err := os.Getwd()
 	if err != nil {
-		workPath, _ := os.Getwd()
-		workPath, _ = filepath.Abs(workPath)
-		fmt.Printf("workPath: %v", workPath)
 		panic(err)
 	}
+
+	if !utils.FileExists(configFile) {
+		configFile , err = matchingConfig(workPath)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err = ParseConfig(configFile, runMode)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func matchingConfig(workPath string) (string, error) {
+	configFile := filepath.Join(workPath, "conf", "app.ini")
+	if !utils.FileExists(configFile) {
+		configFile = filepath.Join("../","conf","app.ini")
+		if !utils.FileExists(configFile) {
+			configFile = filepath.Join("../../","conf","app.ini")
+			if !utils.FileExists(configFile) {
+				configFile = filepath.Join("../../../","conf","app.ini")
+				if !utils.FileExists(configFile) {
+					return "", errors.New(configFile + ": no such file or directory.")
+				}
+			}
+		}
+	}
+	return configFile, nil
 }
