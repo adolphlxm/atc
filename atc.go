@@ -168,7 +168,3 @@ func AddFilter(location Location, module string, filter FilterFunc) {
 func ExecuteHandler(httpMethod, module string, c *Handler) {
 	HttpAPP.Handler.ExecuteHandler(httpMethod, path.Join("/", module), c)
 }
-
-func SetAppVersion(version string) {
-	APPVERSION = version
-}
