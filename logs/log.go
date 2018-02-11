@@ -2,7 +2,6 @@ package logs
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"runtime"
 	"sync"
@@ -142,7 +141,7 @@ func (l *AtcLogger) Output(level int, msg string) error {
 	return nil
 }
 
-func (l *AtcLogger) Flush(){
+func (l *AtcLogger) Flush() {
 	for _, ll := range l.handler {
 		ll.Flush()
 	}
@@ -205,7 +204,6 @@ func (l *AtcLogger) Errorf(format string, v ...interface{}) {
 func (l *AtcLogger) Fatal(args ...interface{}) {
 	msg := fmt.Sprint(args...)
 	l.Output(LevelFatal, msg)
-	os.Exit(1)
 }
 func (l *AtcLogger) Fatalf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
@@ -214,6 +212,7 @@ func (l *AtcLogger) Fatalf(format string, v ...interface{}) {
 
 // Defaultlogs is the default ServeMux used by Serve.
 var defaultlogs = NewLogger(10000)
+
 func SetLogger(adapterName string, configs ...interface{}) error {
 	return defaultlogs.SetLogger(adapterName, configs...)
 }
@@ -271,6 +270,6 @@ func Fatalf(format string, v ...interface{}) {
 	defaultlogs.Fatalf(format, v...)
 }
 
-func Flush(){
+func Flush() {
 	defaultlogs.Flush()
 }

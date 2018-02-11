@@ -1,31 +1,31 @@
 package logs
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
-	"time"
-	"fmt"
-	"bufio"
-	"sync"
-	"bytes"
 	"runtime"
-	"errors"
+	"sync"
+	"time"
 )
 
 var (
-	pid      = os.Getpid()
-	program  = filepath.Base(os.Args[0])
+	pid     = os.Getpid()
+	program = filepath.Base(os.Args[0])
 )
 
 type File struct {
-	mu      sync.Mutex
+	mu sync.Mutex
 	*bufio.Writer
 	logFile *os.File
 
 	LogDir string `json:"logdir"`
 
-	MaxSize uint64 `json:"maxsize"`
-	Buffersize int `json:"buffersize"`
+	MaxSize       uint64 `json:"maxsize"`
+	Buffersize    int    `json:"buffersize"`
 	FlushInterval uint64 `json:"flushinterval"`
 
 	nbytes uint64 // The number of bytes written to this file
@@ -33,6 +33,7 @@ type File struct {
 }
 
 const flushInterval = 10
+
 // bufferSize sizes the buffer associated with each log file. It's large
 // so that log records can accumulate without the logging thread blocking
 // on disk I/O. The flushDaemon will block instead.
@@ -41,9 +42,9 @@ const maxsize = 1024 * 1024 * 1800
 
 func NewFileLog() IAtcLogger {
 	file := &File{
-		MaxSize: maxsize,
-		Buffersize:bufferSize,
-		FlushInterval:flushInterval,
+		MaxSize:       maxsize,
+		Buffersize:    bufferSize,
+		FlushInterval: flushInterval,
 	}
 
 	go file.flushDaemon()
@@ -80,18 +81,20 @@ func (this *File) Output(msg []byte) error {
 	var err error
 	now := time.Now()
 
-	if this.nbytes + uint64(len(msg)) >= this.MaxSize {
+	this.mu.Lock()
+	if this.nbytes+uint64(len(msg)) >= this.MaxSize {
 		if err = this.rotateFile(now); err != nil {
 			return err
 		}
 	}
-
 	n, err := this.Writer.Write(msg)
 	this.nbytes += uint64(n)
+	this.mu.Unlock()
+
 	return err
 }
 
-func (this *File) Flush(){
+func (this *File) Flush() {
 	this.lockAndFlushAll()
 }
 
@@ -102,7 +105,7 @@ func (this *File) rotateFile(now time.Time) error {
 	}
 
 	var err error
-	this.logFile, _, err = this.create("log",now)
+	this.logFile, _, err = this.create("log", now)
 	this.nbytes = 0
 	if err != nil {
 		return nil
@@ -121,8 +124,8 @@ func (this *File) rotateFile(now time.Time) error {
 
 }
 
-func (this *File) create(tag string, t time.Time) (f *os.File, filename string, err error){
-	name, link := this.name(tag,time.Now())
+func (this *File) create(tag string, t time.Time) (f *os.File, filename string, err error) {
+	name, link := this.name(tag, time.Now())
 
 	fname := filepath.Join(this.LogDir, name)
 	f, err = os.Create(fname)
@@ -142,7 +145,7 @@ func (this *File) lockAndFlushAll() {
 	this.mu.Unlock()
 }
 
-func (this *File) flushAll(){
+func (this *File) flushAll() {
 	if this.logFile != nil {
 		this.Writer.Flush()
 		this.logFile.Sync()
@@ -150,7 +153,7 @@ func (this *File) flushAll(){
 }
 
 // flushDaemon periodically flushes the log file buffers.
-func (this *File)flushDaemon() {
+func (this *File) flushDaemon() {
 	for _ = range time.NewTicker(time.Duration(this.FlushInterval) * time.Second).C {
 		this.lockAndFlushAll()
 	}
