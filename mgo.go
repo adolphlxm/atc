@@ -16,7 +16,7 @@ func RunMgoDBs() {
 		logs.Tracef("mgo:[%s] starting...", aliasname)
 		db, err := mgo.NewMgoDB(addrs)
 		if err != nil {
-			logs.Errorf("mgo:[%s] start fail err:%s", aliasname, err.Error())
+			logs.Fatalf("mgo:[%s] start fail err:%s", aliasname, err.Error())
 			continue
 		}
 

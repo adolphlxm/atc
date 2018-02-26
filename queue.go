@@ -69,7 +69,7 @@ func RunQueueConsumer() {
 
 		consumer, err := queue.NewConsumer(drivername, addrs)
 		if err != nil {
-			logs.Errorf("queue.consumer:[%s] start fail err:%s", aliasname, err.Error())
+			logs.Fatalf("queue.consumer:[%s] start fail err:%s", aliasname, err.Error())
 			panic(err)
 		}
 

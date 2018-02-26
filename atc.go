@@ -63,6 +63,11 @@ func Run() {
 		GracePushBack(&httpShutDown{})
 	}
 
+	// If support grpc serve
+	if Aconfig.GrpcSupport {
+		runGrpcServe()
+	}
+
 	logs.Tracef("process: PID for %d", os.Getpid())
 
 	// TODO 平滑退出顺序

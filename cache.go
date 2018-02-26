@@ -22,7 +22,7 @@ func RunCaches() {
 
 		addrUrl, err := url.Parse(addr)
 		if err != nil {
-			logs.Errorf("cache:[%s] parse addrs err:%s", aliasname, err.Error())
+			logs.Fatalf("cache:[%s] parse addrs err:%s", aliasname, err.Error())
 			panic(err)
 		}
 		drivename := addrUrl.Scheme
@@ -44,7 +44,7 @@ func RunCaches() {
 
 		aCache[aliasname], err = cache.NewCache(drivename, config)
 		if err != nil {
-			logs.Errorf("cache:[%s] start fail err:%s", aliasname, err.Error())
+			logs.Fatalf("cache:[%s] start fail err:%s", aliasname, err.Error())
 			panic(err)
 		}
 

@@ -1,11 +1,11 @@
 package atc
 
 import (
+	"errors"
+	"github.com/adolphlxm/atc/utils"
 	"github.com/lxmgo/config"
 	"os"
 	"path/filepath"
-	"github.com/adolphlxm/atc/utils"
-	"errors"
 )
 
 var (
@@ -45,6 +45,9 @@ type Config struct {
 	LogSupport          bool
 	LogLevel            int
 	LogOutput           string
+
+	// Grpc
+	GrpcSupport bool
 
 	// Orm
 	OrmSupport      bool
@@ -104,6 +107,8 @@ func ParseConfig(confName, runmode string) error {
 		ThriftProtocol:      "tbinary",
 		ThriftTransport:     "tframed",
 
+		GrpcSupport: false,
+
 		LogSupport: true,
 		LogLevel:   0,
 		LogOutput:  "stdout",
@@ -148,6 +153,8 @@ func ParseConfig(confName, runmode string) error {
 	Aconfig.ThriftSecure = AppConfig.DefaultString("thrift.secure", Aconfig.ThriftSecure)
 	Aconfig.ThriftProtocol = AppConfig.DefaultString("thrift.protocol", Aconfig.ThriftProtocol)
 	Aconfig.ThriftTransport = AppConfig.DefaultString("thrift.transport", Aconfig.ThriftTransport)
+
+	Aconfig.GrpcSupport = AppConfig.DefaultBool("grpc.support", Aconfig.GrpcSupport)
 
 	Aconfig.LogSupport = AppConfig.DefaultBool("log.support", Aconfig.LogSupport)
 	logLevel := AppConfig.DefaultString("log.level", "LevelDebug")
@@ -243,7 +250,7 @@ func initConfig(configFile, runMode string) {
 	}
 
 	if !utils.FileExists(configFile) {
-		configFile , err = matchingConfig(workPath)
+		configFile, err = matchingConfig(workPath)
 		if err != nil {
 			panic(err)
 		}
@@ -258,11 +265,11 @@ func initConfig(configFile, runMode string) {
 func matchingConfig(workPath string) (string, error) {
 	configFile := filepath.Join(workPath, "conf", "app.ini")
 	if !utils.FileExists(configFile) {
-		configFile = filepath.Join("../","conf","app.ini")
+		configFile = filepath.Join("../", "conf", "app.ini")
 		if !utils.FileExists(configFile) {
-			configFile = filepath.Join("../../","conf","app.ini")
+			configFile = filepath.Join("../../", "conf", "app.ini")
 			if !utils.FileExists(configFile) {
-				configFile = filepath.Join("../../../","conf","app.ini")
+				configFile = filepath.Join("../../../", "conf", "app.ini")
 				if !utils.FileExists(configFile) {
 					return "", errors.New(configFile + ": no such file or directory.")
 				}

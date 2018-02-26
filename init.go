@@ -74,6 +74,11 @@ func init() {
 	if Aconfig.OrmSupport {
 		RunOrms()
 	}
+
+	// 8. Initalize pgrpc
+	if Aconfig.GrpcSupport {
+		lazyInitGrpcServer()
+	}
 }
 
 // Initalize thrift serve
