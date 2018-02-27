@@ -1,9 +1,9 @@
 # ATC
 
-ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Thrift RPC, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
+ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Grpc, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-当前版本: 0.9.6 (Beta 2018-01-20)
+当前版本: 1.0.0
 
 ## 安装ATC
 
@@ -245,6 +245,87 @@ msg, _ := sub.NextMessage(time.Second)
 
 ## RPC 经典案例
 
+**Grpc**
+关于Grpc本身可查看
+* document:
+    - https://grpc.io/
+    - http://doc.oschina.net/grpc?t=58010
+* examples:
+    - https://github.com/grpc/grpc-go/tree/master/examples
+
+**Grpc使用**
+
+* 通过.proto生成server / client 代码
+  ```go
+  protoc --go_out=plugins=grpc:. helloworld.proto
+  ```
+* 在`app.ini`配置文件打开grpc并配置对应的地址和端口
+* 编写server代码(举例)
+   ```go
+   package main
+   import (
+    "context"
+   	"github.com/adolphlxm/atc"
+   	pb "github.com/adolphlxm/test1/helloworld"
+   )
+   // GRPC server
+   type server struct {}
+   func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+   	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
+   }
+
+   // 在atc.Run()之前注册GRPC服务
+   func init() {
+   	pb.RegisterGreeterServer(atc.GetGrpcServer(), &server{})
+   }
+
+   func main() {
+   	atc.Run()
+   }
+
+   ```
+* 编写client代码(举例)
+    ```go
+    package main
+
+    //client.go
+
+    import (
+    	"log"
+    	"os"
+
+    	"golang.org/x/net/context"
+    	"google.golang.org/grpc"
+    	pb "example/rpc/helloworld"
+    )
+
+    const (
+    	address     = "127.0.0.1:50005"
+    	defaultName = "world"
+    )
+
+
+    func main() {
+    	conn, err := grpc.Dial(address, grpc.WithInsecure())
+    	if err != nil {
+    		log.Fatal("did not connect: %v", err)
+    	}
+    	defer conn.Close()
+    	c := pb.NewGreeterClient(conn)
+
+    	name := defaultName
+    	if len(os.Args) >1 {
+    		name = os.Args[1]
+    	}
+    	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+    	if err != nil {
+    		log.Fatal("could not greet: %v", err)
+    	}
+    	log.Printf("Greeting: %s", r.Message)
+
+    }
+    ```
+
 **Thrift RPC**
 关于Thrift RPC 具体可以 度娘、谷爹查看
 
@@ -271,8 +352,6 @@ func init() {
 	atc.ThriftRPC.RegisterProcessor("user", processor)
 }
 ```
-
-**gRPC...**
 
 ## ORM
 * 通过`app.ini`配置文件加载多库初始化方法

@@ -31,7 +31,7 @@ import (
 )
 
 // ATC framework version.
-const VERSION = "0.9.8"
+const VERSION = "1.0.0"
 
 var APPVERSION string
 var Route *RouterGroup
@@ -70,7 +70,6 @@ func Run() {
 
 	logs.Tracef("process: PID for %d", os.Getpid())
 
-	// TODO 平滑退出顺序
 	logs.Tracef("grace: stop order -> [%s]", strings.Join(graceNodeTree.Get(), ","))
 	stop()
 }
