@@ -10,24 +10,14 @@ type OrmFunc func() Orm
 
 type Orm interface {
 	// new a db manager according to the parameter. Currently support four for xorm
-	// Param:
-	//	1.
-	//	2. {"driver":"mysql","host":"127.0.0.1:3306","user":"root","password":"123456","dbname":"test"}
-	Open(aliasName, config string) error
-
-	SetMaxIdleConns(aliasName string, conns int)
-
-	// SetMaxOpenConns is only available for go 1.2
-	SetMaxOpenConns(aliasName string, conns int)
-
-	Debug(aliasName string, show bool)
+	Open(aliasName string, dataSourceName []string) error
 
 	Ping(aliasName string) error
 
 	Clone(aliasName string) error
 
 	// Xorm
-	Use(aliasName string) *xorm.Engine
+	Use(aliasName string) *xorm.EngineGroup
 }
 
 var adapters = make(map[string]OrmFunc)

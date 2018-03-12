@@ -1,7 +1,6 @@
 package xorm
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -9,40 +8,91 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
+	"net/url"
+	"strconv"
 )
 
 type Orm struct {
-	db       map[string]*xorm.Engine
+	db       map[string]*xorm.EngineGroup
 	logLevel core.LogLevel
 	mu       sync.Mutex
 }
 
-func NewXorm() orm.Orm {
-	return &Orm{db: make(map[string]*xorm.Engine)}
+func NewEngineGroup() orm.Orm {
+	orm := &Orm{
+		db: make(map[string]*xorm.EngineGroup),
+	}
+	return orm
 }
 
-func (this *Orm) Open(aliasName, config string) error {
-	var cf map[string]string
-	err := json.Unmarshal([]byte(config), &cf)
-	if err != nil {
-		return err
-	}
-	if cf["driver"] == "" {
-		cf["driver"] = "mysql"
+func (this *Orm) Open(aliasName string, dataSourceName []string) error {
+	var driverName string
+	var dataSourceNameSlice []string
+	var (
+		maxIdleConns int
+		maxOpenConns int
+	)
+
+	var (
+		host    string
+		charset string
+		db      string
+	)
+	for key, addr := range dataSourceName {
+		dns, err := url.Parse(addr)
+		if err != nil {
+			return err
+		}
+
+		queryValue := dns.Query()
+
+		username := dns.User.Username()
+		password, _ := dns.User.Password()
+		_host := dns.Host
+		_db := queryValue.Get("db")
+		_charset := queryValue.Get("charset")
+
+		// Master
+		if key == 0 {
+			driverName = dns.Scheme
+			maxIdleConns, _ = strconv.Atoi(queryValue.Get("maxIdleConns"))
+			maxOpenConns, _ = strconv.Atoi(queryValue.Get("maxOpenConns"))
+		}
+
+		// If
+		if _host != "" {
+			host = _host
+		}
+		if _charset != "" {
+			charset = _charset
+		}
+		if _db != "" {
+			db = _db
+		}
+		dataSourceNameSlice = append(dataSourceNameSlice, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s", username, password, host, db, charset))
 	}
 
-	// New a db manager according to the parameter.
-	engine, err := xorm.NewEngine(cf["driver"], fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8", cf["user"], cf["password"], cf["host"], cf["dbname"]))
+	engineGroup, err := xorm.NewEngineGroup(driverName, dataSourceNameSlice)
 	if err != nil {
 		return err
 	}
+
+	engineGroup.SetMaxIdleConns(maxIdleConns)
+	engineGroup.SetMaxOpenConns(maxOpenConns)
 
 	// The Ping () for the database connection test
-	if err = engine.Ping(); err != nil {
+	if err = engineGroup.Ping(); err != nil {
 		return err
 	}
 
-	switch cf["loglevel"] {
+	// Default.
+	engineGroup.Logger().SetLevel(core.LOG_OFF)
+	this.db[aliasName] = engineGroup
+	return nil
+}
+
+func (this *Orm) SetLevel(aliasName string, level string) {
+	switch level {
 	case "LOG_UNKNOWN":
 		this.logLevel = core.LOG_UNKNOWN
 	case "LOG_OFF":
@@ -60,47 +110,42 @@ func (this *Orm) Open(aliasName, config string) error {
 	}
 
 	// Default.
-	engine.Logger().SetLevel(core.LOG_OFF)
-
-	this.db[aliasName] = engine
-	return nil
+	this.db[aliasName].SetLogLevel(this.logLevel)
 }
 
-func (this *Orm) SetMaxIdleConns(aliasName string, conns int) {
-	this.db[aliasName].SetMaxIdleConns(conns)
-}
-
-func (this *Orm) SetMaxOpenConns(aliasName string, conns int) {
-	this.db[aliasName].SetMaxOpenConns(conns)
-}
-
-func (this *Orm) Debug(aliasName string, show bool) {
-	this.db[aliasName].ShowSQL(show)
-	if show {
-		this.db[aliasName].Logger().SetLevel(this.logLevel)
-	} else {
-		this.db[aliasName].Logger().SetLevel(core.LOG_OFF)
-	}
-}
+//func (this *Orm) Debug(aliasName string, show bool) {
+//	this.db[aliasName].ShowSQL(show)
+//	if show {
+//		this.db[aliasName].Logger().SetLevel(this.logLevel)
+//	} else {
+//		this.db[aliasName].Logger().SetLevel(core.LOG_OFF)
+//	}
+//}
 
 func (this *Orm) Ping(aliasName string) error {
 	return this.db[aliasName].Ping()
 }
 
+// Ping tests if database is alive
 func (this *Orm) Clone(aliasName string) error {
-	var err error
-	this.mu.Lock()
-	defer this.mu.Unlock()
+	slave := make([]*xorm.Engine, 0)
+	master, _ := this.db[aliasName].Master().Clone()
 
-	this.db[aliasName], err = this.db[aliasName].Clone()
+	for _, slaveEngine := range this.db[aliasName].Slaves() {
+		engine, _ := slaveEngine.Clone()
+		slave = append(slave, engine)
+	}
+
+	var err error
+	this.db[aliasName], err = xorm.NewEngineGroup(master, slave)
 	return err
 }
 
-func (this *Orm) Use(aliasName string) *xorm.Engine {
+func (this *Orm) Use(aliasName string) *xorm.EngineGroup {
 	return this.db[aliasName]
 }
 
 // Register
 func init() {
-	orm.Register("xorm", NewXorm)
+	orm.Register("xorm", NewEngineGroup)
 }

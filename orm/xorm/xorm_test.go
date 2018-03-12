@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"github.com/adolphlxm/atc/orm"
 	"testing"
-	"time"
 )
 
 type Test1 struct {
-	Id     int64 `xorm:"pk autoincr"`
-	Number int64 `xorm:"int(11)"`
+	Id int64 `xorm:"pk autoincr"`
+	N1 int64 `xorm:"int(11)"`
 }
 
 func _runEngine(t *testing.T) orm.Orm {
 	xorm, _ := orm.NewOrm("xorm")
-	err := xorm.Open("test_w", `{"driver":"mysql","host":"127.0.0.1:3306","user":"root","password":"123456","dbname":"test"}`)
+	dataSourceNames := []string{"mysql://root:123456@127.0.0.1:3306/?charset=utf8&maxidleconns=1&maxopenconns=1&pingtime=30&db=test", "mysql://root:123456@?db=test2"}
+	err := xorm.Open("t1", dataSourceNames)
 	if err != nil {
 		t.Errorf("Orm Open err:%v", err.Error())
 	}
@@ -24,8 +24,7 @@ func _runEngine(t *testing.T) orm.Orm {
 
 func TestConnect(t *testing.T) {
 	xorm := _runEngine(t)
-	xorm.Debug("test_w", true)
-	engine := xorm.Use("test_w")
+	engine := xorm.Use("t1")
 
 	if err := engine.Ping(); err != nil {
 		t.Errorf("Orm ping failed err:%v", err.Error())
@@ -36,14 +35,13 @@ func TestConnect(t *testing.T) {
 
 func TestReconnect(t *testing.T) {
 	xorm := _runEngine(t)
-	xorm.Debug("test_w", true)
-	engine := xorm.Use("test_w")
+	engine := xorm.Use("t1")
 
 	engine.Logger().Infof("Please Start the database %v", engine.DriverName())
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 
 	// Reconnect.
-	if err := xorm.Clone("test_w"); err != nil {
+	if err := xorm.Clone("t1"); err != nil {
 		t.Errorf("Orm clone failed err:%v.", err.Error())
 	}
 
