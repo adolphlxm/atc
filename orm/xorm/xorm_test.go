@@ -36,8 +36,8 @@ func TestConnect(t *testing.T) {
 func TestReconnect(t *testing.T) {
 	xorm := _runEngine(t)
 	engine := xorm.Use("t1")
-
-	engine.Logger().Infof("Please Start the database %v", engine.DriverName())
+	xorm.SetLevel("t1", "LOG_DEBUG")
+	//engine.Logger().Infof("Please Start the database %v", engine.DriverName())
 	//time.Sleep(10 * time.Second)
 
 	// Reconnect.

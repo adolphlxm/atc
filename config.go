@@ -58,7 +58,6 @@ type Config struct {
 	ThriftTransport string
 
 	// Log
-	OrmLogDebug   bool
 	OrmLogLevel   string
 	OrmAliasNames []string
 
@@ -114,7 +113,6 @@ func ParseConfig(confName, runmode string) error {
 		LogOutput:  "stdout",
 
 		OrmSupport:    false,
-		OrmLogDebug:   false,
 		OrmLogLevel:   "LOG_OFF",
 		OrmAliasNames: []string{},
 
@@ -177,7 +175,6 @@ func ParseConfig(confName, runmode string) error {
 	Aconfig.LogOutput = AppConfig.DefaultString("log.output", Aconfig.LogOutput)
 
 	Aconfig.OrmSupport = AppConfig.DefaultBool("orm.support", Aconfig.OrmSupport)
-	Aconfig.OrmLogDebug = AppConfig.DefaultBool("orm.log.debug", Aconfig.OrmLogDebug)
 	Aconfig.OrmLogLevel = AppConfig.DefaultString("orm.log.level", Aconfig.OrmLogLevel)
 	Aconfig.OrmAliasNames = AppConfig.DefaultStrings("orm.aliasnames", Aconfig.OrmAliasNames)
 

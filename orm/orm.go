@@ -16,6 +16,8 @@ type Orm interface {
 
 	Clone(aliasName string) error
 
+	SetLevel(aliasName string, level string)
+
 	// Xorm
 	Use(aliasName string) *xorm.EngineGroup
 }
