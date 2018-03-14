@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"sync"
 	"github.com/adolphlxm/atc/logs"
+	"errors"
 )
 
 var (
@@ -95,8 +96,24 @@ func (m *ErrorMap) parseDefault() {
 	}
 }
 
+
+func checkFileIsExist(filename string) bool {
+	f, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	if f != nil && f.IsDir() {
+		return false
+	}
+	return true
+}
+
 // Parse error code file, then append to the ErrorCode map
 func (m *ErrorMap) parse(ename string) error {
+	if !checkFileIsExist(ename) {
+		return errors.New("file does not exist.")
+	}
+	
 	f, err := os.Open(ename)
 	if err != nil {
 		return err
