@@ -113,7 +113,7 @@ func (m *ErrorMap) parse(ename string) error {
 	if !checkFileIsExist(ename) {
 		return errors.New("file does not exist.")
 	}
-	
+
 	f, err := os.Open(ename)
 	if err != nil {
 		return err

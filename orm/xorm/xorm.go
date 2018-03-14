@@ -83,9 +83,7 @@ func (this *Orm) Open(aliasName string, dataSourceName []string) error {
 }
 
 func (this *Orm) SetLevel(aliasName string, level string) {
-	//this.db[aliasName].ShowSQL(true)
-	this.db[aliasName].Logger().ShowSQL(false)
-	this.db[aliasName].Logger().SetLevel(core.LOG_OFF)
+	this.db[aliasName].ShowSQL(true)
 	if level == "" {
 		level = "LOG_OFF"
 	}
