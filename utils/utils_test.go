@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"testing"
+	"regexp"
 )
 
 func TestRandString(t *testing.T) {

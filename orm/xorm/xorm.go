@@ -8,8 +8,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
-	"net/url"
 	"strconv"
+	"github.com/adolphlxm/atc/orm/util"
 )
 
 type Orm struct {
@@ -34,42 +34,34 @@ func (this *Orm) Open(aliasName string, dataSourceName []string) error {
 	)
 
 	var (
-		host    string
 		charset string
 		db      string
 	)
 	for key, addr := range dataSourceName {
-		dns, err := url.Parse(addr)
+		dns, err := util.ExtractURL(addr)
 		if err != nil {
 			return err
 		}
 
-		queryValue := dns.Query()
-
-		username := dns.User.Username()
-		password, _ := dns.User.Password()
-		_host := dns.Host
-		_db := queryValue.Get("db")
-		_charset := queryValue.Get("charset")
+		_db := dns.Options["db"]
+		_charset := dns.Options["charset"]
 
 		// Master
 		if key == 0 {
-			driverName = dns.Scheme
-			maxIdleConns, _ = strconv.Atoi(queryValue.Get("maxIdleConns"))
-			maxOpenConns, _ = strconv.Atoi(queryValue.Get("maxOpenConns"))
+			driverName = dns.DriverName
+			maxIdleConns, _ = strconv.Atoi(dns.Options["maxIdleConns"])
+			maxOpenConns, _ = strconv.Atoi(dns.Options["maxOpenConns"])
 		}
 
-		// If
-		if _host != "" {
-			host = _host
-		}
 		if _charset != "" {
 			charset = _charset
 		}
 		if _db != "" {
 			db = _db
 		}
-		dataSourceNameSlice = append(dataSourceNameSlice, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s", username, password, host, db, charset))
+		//dataSourceNameSlice = append(dataSourceNameSlice, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s", host, db, charset))
+		dataSourceNameSlice = append(dataSourceNameSlice, fmt.Sprintf("%s/%s?charset=%s", dns.Addr, db, charset))
+
 	}
 
 	engineGroup, err := xorm.NewEngineGroup(driverName, dataSourceNameSlice)
@@ -112,15 +104,6 @@ func (this *Orm) SetLevel(aliasName string, level string) {
 	// Default.
 	this.db[aliasName].SetLogLevel(this.logLevel)
 }
-
-//func (this *Orm) Debug(aliasName string, show bool) {
-//	this.db[aliasName].ShowSQL(show)
-//	if show {
-//		this.db[aliasName].Logger().SetLevel(this.logLevel)
-//	} else {
-//		this.db[aliasName].Logger().SetLevel(core.LOG_OFF)
-//	}
-//}
 
 func (this *Orm) Ping(aliasName string) error {
 	return this.db[aliasName].Ping()
