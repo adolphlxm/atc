@@ -30,6 +30,8 @@ func RunOrms() {
 			go timerTask(aliasname, int64(pingtime), dbs)
 		}
 
+		dbs.SetLevel(aliasname, Aconfig.OrmLogLevel)
+
 		logs.Tracef("orm:[%s] Running.", aliasname)
 
 	}
