@@ -2,13 +2,12 @@ package atc
 
 import (
 	"time"
-
-	"github.com/adolphlxm/atc/logs"
-	"github.com/adolphlxm/atc/orm"
-	_ "github.com/adolphlxm/atc/orm/xorm"
-	"github.com/go-xorm/xorm"
-	"net/url"
 	"strconv"
+	"github.com/adolphlxm/atc/orm"
+	"github.com/adolphlxm/atc/orm/util"
+	"github.com/adolphlxm/atc/logs"
+	"github.com/go-xorm/xorm"
+	_ "github.com/adolphlxm/atc/orm/xorm"
 )
 
 var dbs orm.Orm
@@ -24,9 +23,8 @@ func RunOrms() {
 		}
 
 		// Check orm connection
-		dns, _ := url.Parse(addrs[0])
-		queryValue := dns.Query()
-		if pingtime, err := strconv.Atoi(queryValue.Get("pingtime")); err != nil {
+		dns, _ := util.ExtractURL(addrs[0])
+		if pingtime, err := strconv.Atoi(dns.Options["pingtime"]); err != nil {
 			go timerTask(aliasname, int64(pingtime), dbs)
 		}
 
