@@ -3,7 +3,7 @@
 ATC 是一个快速开发GO应用程序的开源框架，支持RESTful API, Grpc, Redis, Nats队列的框架.可根据自身业务逻辑选择性的卸载中间件的功能，均支持平滑退出。
 
 要求GO版本 >= 1.8
-当前版本: 1.0.2
+当前版本: 1.0.3
 
 ## 安装ATC
 
@@ -456,6 +456,12 @@ atc.GetCache("aliasname").Delete()
 | TERM,INT      | 立即终止 |
 | QUIT      | 优雅的关闭进程,即等所有请求结束后再关闭 |
 
+## 配置说明
+
+* atc.Aconfig 调用ATC内置参数
+    - 举例：atc.Aconfig.ConfDir 获取当前项目配置目录(输出：./conf/)
+
+* atc.AppConfig 调用配置文件自定义配置项
 
 ## ATC项目结构
 <pre>
@@ -529,6 +535,7 @@ atc.GetCache("aliasname").Delete()
     - 优化加载配置
 * 2018.3
     - 优化orm, 使用xorm最新版本
+    - 修复配置加载BUG，异常时输出错误日志
 
 ## 即将支持特性(待定稿)
 

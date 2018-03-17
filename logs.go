@@ -15,11 +15,7 @@ func initLogs(){
 		panic(err)
 	}
 
-	if Aconfig.Debug {
-		logs.SetLevel(logs.LevelDebug)
-	} else {
-		logs.SetLevel(Aconfig.LogLevel)
-	}
+	logs.SetLevel(Aconfig.LogLevel)
 
 	// Initializes error file.
 	initError()

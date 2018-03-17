@@ -5,11 +5,11 @@ import (
 	"sync"
 
 	"github.com/adolphlxm/atc/orm"
+	"github.com/adolphlxm/atc/orm/util"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 	"strconv"
-	"github.com/adolphlxm/atc/orm/util"
 )
 
 type Orm struct {
@@ -20,7 +20,8 @@ type Orm struct {
 
 func NewEngineGroup() orm.Orm {
 	orm := &Orm{
-		db: make(map[string]*xorm.EngineGroup),
+		db:       make(map[string]*xorm.EngineGroup),
+		logLevel: core.LOG_OFF,
 	}
 	return orm
 }
@@ -73,6 +74,7 @@ func (this *Orm) Open(aliasName string, dataSourceName []string) error {
 	engineGroup.SetMaxOpenConns(maxOpenConns)
 
 	// The Ping () for the database connection test
+	engineGroup.SetLogLevel(this.logLevel)
 	if err = engineGroup.Ping(); err != nil {
 		return err
 	}

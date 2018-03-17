@@ -2,10 +2,13 @@ package atc
 
 import (
 	"errors"
-	"github.com/adolphlxm/atc/utils"
-	"github.com/lxmgo/config"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/adolphlxm/atc/utils"
+	"github.com/lxmgo/config"
+	"github.com/adolphlxm/atc/logs"
 )
 
 var (
@@ -17,6 +20,7 @@ type Config struct {
 	Runmode string
 	Debug   bool
 	AppName string
+	ConfDir string
 
 	// HTTP/Websocket
 	HTTPSupport      bool
@@ -82,6 +86,8 @@ func ParseConfig(confName, runmode string) error {
 		Runmode:          "local",
 		Debug:            false,
 		AppName:          "ATC",
+
+		HTTPSupport: false,
 		HTTPAddr:         "",
 		HTTPPort:         "9000",
 		HTTPQTimeout:     60,
@@ -126,6 +132,14 @@ func ParseConfig(confName, runmode string) error {
 		Aconfig.Runmode = runmode
 	}
 
+	if c := AppConfig.String("app.name"); c == "" {
+		panic(confName + " file missing [" + Aconfig.Runmode + "] model.")
+	}
+
+	// Conf dir
+	lastIdx := strings.LastIndex(confName,"/")
+	Aconfig.ConfDir = confName[:lastIdx + 1]
+
 	Aconfig.HTTPSupport = AppConfig.DefaultBool("http.support", Aconfig.HTTPSupport)
 	Aconfig.HTTPAddr = AppConfig.DefaultString("http.addr", Aconfig.HTTPAddr)
 	Aconfig.HTTPPort = AppConfig.DefaultString("http.port", Aconfig.HTTPPort)
@@ -158,19 +172,19 @@ func ParseConfig(confName, runmode string) error {
 	logLevel := AppConfig.DefaultString("log.level", "LevelDebug")
 	switch logLevel {
 	case "LevelFatal":
-		Aconfig.LogLevel = 0
+		Aconfig.LogLevel = logs.LevelFatal
 	case "LevelError":
-		Aconfig.LogLevel = 1
+		Aconfig.LogLevel = logs.LevelError
 	case "LevelWarn":
-		Aconfig.LogLevel = 2
+		Aconfig.LogLevel = logs.LevelWarn
 	case "LevelNotice":
-		Aconfig.LogLevel = 3
+		Aconfig.LogLevel = logs.LevelNotice
 	case "LevelInfo":
-		Aconfig.LogLevel = 4
+		Aconfig.LogLevel = logs.LevelInfo
 	case "LevelTrace":
-		Aconfig.LogLevel = 5
+		Aconfig.LogLevel = logs.LevelTrace
 	case "LevelDebug":
-		Aconfig.LogLevel = 6
+		Aconfig.LogLevel = logs.LevelDebug
 	}
 	Aconfig.LogOutput = AppConfig.DefaultString("log.output", Aconfig.LogOutput)
 
@@ -182,6 +196,12 @@ func ParseConfig(confName, runmode string) error {
 	Aconfig.QueueConsumerSupport = AppConfig.DefaultBool("queue.consumer.support", Aconfig.QueueConsumerSupport)
 
 	Aconfig.MgoSupport = AppConfig.DefaultBool("mgo.support", Aconfig.MgoSupport)
+
+	if Aconfig.Debug {
+		Aconfig.LogLevel = logs.LevelDebug
+		Aconfig.OrmLogLevel = "LOG_DEBUG"
+	}
+
 	return nil
 }
 

@@ -111,7 +111,7 @@ func checkFileIsExist(filename string) bool {
 // Parse error code file, then append to the ErrorCode map
 func (m *ErrorMap) parse(ename string) error {
 	if !checkFileIsExist(ename) {
-		return errors.New("file does not exist.")
+		return errors.New("[" + ename + "]file does not exist.")
 	}
 
 	f, err := os.Open(ename)
@@ -210,7 +210,7 @@ func (res *Error) JSON() {
 func initError(){
 	ErrorCode = NewErrorMap()
 	// In the conf/error. Ini file parsing error code
-	err := ErrorCode.parse(AppConfig.DefaultString("error.file", "../conf/error.ini"))
+	err := ErrorCode.parse(Aconfig.ConfDir + "error.ini")
 	if err != nil {
 		logs.Warnf("Error file loading err:%v", err.Error())
 	}
