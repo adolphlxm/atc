@@ -37,7 +37,8 @@ func RunCaches() {
 			if userInfo := addrUrl.User; userInfo != nil {
 				password, _ = addrUrl.User.Password()
 			}
-			config = `{"addr":"` + redisAddr + `","maxidle":"` + queryValue.Get("maxIdle") + `","maxactive":"` + queryValue.Get("maxActive") + `","idletimeout":"` + queryValue.Get("idleTimeout") + `","password":"` + password + `"}`
+
+			config = `{"addr":"` + redisAddr + `","maxidle":"` + queryValue.Get("maxIdle") + `","maxactive":"` + queryValue.Get("maxActive") + `","idletimeout":"` + queryValue.Get("idleTimeout") + `","password":"` + password + `", "db":"`+ queryValue.Get("db") +`"}`
 		default:
 			continue
 		}

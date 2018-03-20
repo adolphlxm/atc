@@ -123,6 +123,7 @@ func (c *Cache) connectInit() error {
 					return nil, err
 				}
 			}
+			r.Do("SELECT", c.conninfo["db"])
 			return r, err
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
