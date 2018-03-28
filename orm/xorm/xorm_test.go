@@ -13,7 +13,7 @@ type Test1 struct {
 
 func _runEngine(t *testing.T) orm.Orm {
 	xorm, _ := orm.NewOrm("xorm")
-	dataSourceNames := []string{"mysql://root:123456@127.0.0.1:3306//?charset=utf8&maxidleconns=1&maxopenconns=1&pingtime=30&db=test", "root:123456@?db=test2"}
+	dataSourceNames := []string{"mysql://root:123456@127.0.0.1:3306/?charset=utf8&maxidleconns=1&maxopenconns=1&pingtime=30&db=test"}
 	err := xorm.Open("t1", dataSourceNames)
 	if err != nil {
 		t.Errorf("Orm Open err:%v", err.Error())

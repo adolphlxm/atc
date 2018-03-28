@@ -333,6 +333,7 @@ func (r *Router) regexpRouter() (err error) {
 		//Create a buffer
 		exprPattern := bytes.NewBufferString("^")
 		defaultPattern := "[^/]+"
+		defaultPatternWild := "[^.]+"
 		idxs, err := braceIndices(r.Pattern)
 		if err != nil {
 			return err
@@ -342,8 +343,13 @@ func (r *Router) regexpRouter() (err error) {
 		for i := 0; i < len(idxs); i += 2 {
 			raw := regexp.QuoteMeta(r.Pattern[end:idxs[i]])
 			end = idxs[i+1]
-			parts := strings.SplitN(r.Pattern[idxs[i]+1:end-1], ":", 2)
+			paramRegexp := r.Pattern[idxs[i]+1:end-1]
+			parts := strings.SplitN(paramRegexp, ":", 2)
 			patt := defaultPattern
+			if paramRegexp == "*" {
+				patt = defaultPatternWild
+			}
+
 			if len(parts) == 2 {
 				patt = parts[1]
 			}
